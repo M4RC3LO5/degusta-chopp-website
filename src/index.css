@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .shadow-neu-flat {
+    box-shadow: 6px 6px 14px #060e08, -6px -6px 14px #1c361e;
+  }
+  .shadow-neu-pressed {
+    box-shadow: inset 4px 4px 8px #060e08, inset -4px -4px 8px #1c361e;
+  }
+  .shadow-neu-gold {
+    box-shadow: 6px 6px 16px #060e08, -6px -6px 16px #1c361e, 0 0 20px rgba(245, 158, 11, 0.3);
+  }
+  .shadow-gold-glow {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-chopp-dark text-slate-100 font-sans m-0 p-0 antialiased selection:bg-chopp-gold selection:text-chopp-dark;
+}
+
+/* Custom scrollbar for dark green theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a160d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e3a24;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b;
+}
