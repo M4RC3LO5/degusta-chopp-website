@@ -1,5 +1,6 @@
 import React from 'react';
-import { MessageCircle, Flame, Truck, Award, ShieldCheck, ChevronDown, Sparkles } from 'lucide-react';
+import { MessageCircle, Flame, Truck, Award, ChevronDown, Sparkles } from 'lucide-react';
+import OrderConfigurator from './OrderConfigurator';
 
 export default function Hero({ onOpenWhatsApp, onOpenCalculator }) {
   const handleScrollToCatalog = () => {
@@ -91,75 +92,9 @@ export default function Hero({ onOpenWhatsApp, onOpenCalculator }) {
 
           </div>
 
-          {/* Neumorphic Beer Card Showcase Column */}
+          {/* Right Column: Order Configurator Component */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="w-full max-w-md p-6 sm:p-8 rounded-3xl bg-[#142718] border border-amber-500/30 shadow-neu-gold relative">
-              
-              {/* Top Tag */}
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-emerald-900/60">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
-                    Disponível Agora
-                  </span>
-                </div>
-                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
-                  Barris 30L e 50L
-                </span>
-              </div>
-
-              {/* Graphic Mockup / Illustration Box */}
-              <div className="relative rounded-2xl bg-[#0d1c10] p-6 text-center border border-emerald-900/40 shadow-neu-pressed overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-emerald-500/5 pointer-events-none"></div>
-                
-                <div className="text-7xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_10px_20px_rgba(245,158,11,0.3)]">
-                  🍺
-                </div>
-                
-                <h3 className="text-xl font-extrabold text-amber-300">
-                  Chopp Trincando de Gelado
-                </h3>
-                <p className="text-xs text-emerald-200/70 mt-1">
-                  Instalação completa e suporte durante seu evento.
-                </p>
-
-                {/* Brands badge */}
-                <div className="mt-4 pt-3 border-t border-emerald-900/40 flex items-center justify-center gap-2 text-xs text-amber-200 font-semibold">
-                  <span className="px-2 py-0.5 rounded bg-emerald-950 border border-amber-500/20">Bru</span>
-                  <span>•</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-950 border border-amber-500/20">Germânia</span>
-                  <span>•</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-950 border border-amber-500/20">Brahma</span>
-                </div>
-              </div>
-
-              {/* Quick Calculate Event Box */}
-              <div className="mt-6 p-4 rounded-xl bg-[#1b321f]/90 border border-amber-500/20 shadow-neu-flat">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h5 className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                      Dúvida sobre a quantidade?
-                    </h5>
-                    <p className="text-xs text-emerald-100/70 mt-0.5">
-                      Calcule litros por pessoa em 30 segundos
-                    </p>
-                  </div>
-                  <button
-                    onClick={onOpenCalculator}
-                    className="px-3.5 py-2 rounded-lg bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 transition-colors shadow-md shrink-0"
-                  >
-                    Calcular Litros
-                  </button>
-                </div>
-              </div>
-
-              {/* Security note */}
-              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-emerald-300/80">
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
-                <span>Chopp armazenado e transportado sob temperatura ideal</span>
-              </div>
-
-            </div>
+            <OrderConfigurator onOpenCalculator={onOpenCalculator} />
           </div>
 
         </div>

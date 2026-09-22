@@ -6,9 +6,9 @@ import Catalog from './components/Catalog';
 import ChoppCalculatorModal from './components/ChoppCalculatorModal';
 import Footer from './components/Footer';
 import { MessageCircle, Calculator, ChevronUp } from 'lucide-react';
+import { WHATSAPP_NUMBER } from './utils/whatsapp';
 
 export default function App() {
-  const WHATSAPP_NUMBER = '5511991069099';
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
 
   const handleOpenWhatsApp = (customMessage = '') => {

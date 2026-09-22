@@ -60,7 +60,11 @@ ${promoLine}
 🕐 Horário:`;
 }
 
+// Fallback seguro para Node.js (scripts) vs Vite
+const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {};
+export const WHATSAPP_NUMBER = env.VITE_WHATSAPP_NUMBER || '5511991069099';
+
 export function buildWhatsAppUrl(items) {
   const message = buildWhatsAppMessage(items);
-  return `https://wa.me/5511991069099?text=${encodeURIComponent(message)}`;
+  return `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`;
 }
