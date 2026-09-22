@@ -138,7 +138,7 @@ export default function Catalog({ onOpenWhatsApp }) {
                                 <img
                                   src={brand.logo}
                                   alt={`Logo ${brand.name}`}
-                                  className="w-12 h-12 object-contain rounded-md bg-white/5 p-1 shrink-0"
+                                  className="w-14 h-14 object-contain rounded-md bg-white/5 p-1 shrink-0"
                                   loading="lazy"
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
