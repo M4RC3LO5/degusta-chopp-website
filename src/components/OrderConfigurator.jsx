@@ -52,7 +52,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
   }, []);
 
   useEffect(() => {
-    if (!isDesktop && isMobileCartOpen) {
+    if (!isDesktop && isMobileCartOpen && items.length > 0) {
       document.body.style.overflow = 'hidden';
       document.body.classList.add('has-modal');
     } else {
@@ -63,7 +63,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
       document.body.style.overflow = ''; 
       document.body.classList.remove('has-modal');
     };
-  }, [isMobileCartOpen, isDesktop]);
+  }, [isMobileCartOpen, isDesktop, items.length]);
 
   const budgetListRef = useRef(null);
   const listContainerRef = useRef(null);
@@ -195,12 +195,19 @@ export default function OrderConfigurator({ onOpenCalculator }) {
 
   // Remove item
   const handleRemoveItem = (itemId) => {
-    setItems(prev => prev.filter(it => it.id !== itemId));
+    setItems(prev => {
+      const next = prev.filter(it => it.id !== itemId);
+      if (next.length === 0) {
+        setIsMobileCartOpen(false);
+      }
+      return next;
+    });
   };
 
   // Clear all items
   const handleClearBudget = () => {
     if (window.confirm('Tem certeza que deseja limpar todo o orçamento?')) {
+      setIsMobileCartOpen(false);
       setItems([]);
     }
   };
