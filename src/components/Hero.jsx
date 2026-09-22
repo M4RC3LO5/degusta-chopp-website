@@ -42,7 +42,7 @@ export default function Hero({ onOpenWhatsApp, onOpenCalculator }) {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
               <button
                 onClick={() => onOpenWhatsApp("Olá! Quero pedir chopp gelado para o meu evento!")}
-                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-black text-base tracking-wide shadow-gold-glow hover:shadow-[0_0_35px_rgba(245,158,11,0.5)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-3 group"
+                className="w-full sm:w-auto px-4 sm:px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-black text-sm sm:text-base tracking-normal sm:tracking-wide shadow-gold-glow hover:shadow-[0_0_35px_rgba(245,158,11,0.5)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 group"
               >
                 <MessageCircle className="w-5 h-5 text-slate-950 fill-slate-950 group-hover:scale-110 transition-transform" />
                 <span>Solicitar Chopp via WhatsApp</span>

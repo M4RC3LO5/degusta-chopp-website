@@ -7,6 +7,20 @@ export default function ChoppCalculatorModal({ isOpen, onClose, onOpenWhatsApp }
   const [durationHours, setDurationHours] = useState(4);
   const [selectedBeerType, setSelectedBeerType] = useState('Chopp Pilsen');
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('has-modal');
+    } else {
+      document.body.style.overflow = '';
+      document.body.classList.remove('has-modal');
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.classList.remove('has-modal');
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   // Calculation formula: Average 1.8L per man for 4 hours, 1.2L per woman for 4 hours
@@ -47,24 +61,27 @@ export default function ChoppCalculatorModal({ isOpen, onClose, onOpenWhatsApp }
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-lg rounded-3xl bg-[#142718] border-2 border-amber-500/40 p-6 sm:p-8 shadow-neu-gold text-slate-100 max-h-[90vh] overflow-y-auto">
         
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-xl bg-[#0d1c10] text-emerald-300 hover:text-amber-400 border border-emerald-900/60 shadow-neu-pressed transition-colors"
-          aria-label="Fechar modal"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Modal Title */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#0d1c10] border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-neu-pressed">
-            <Calculator className="w-6 h-6" />
+        {/* Modal Header */}
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-emerald-900/60">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/40 shrink-0">
+              <Calculator className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-black uppercase tracking-wider text-amber-400">
+                Calculadora
+              </h2>
+              <p className="text-xs text-emerald-200/70">Descubra a quantidade perfeita para a sua festa</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-black text-amber-300">Calculadora de Chopp</h3>
-            <p className="text-xs text-emerald-200/70">Descubra a quantidade perfeita para a sua festa</p>
-          </div>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="p-2 shrink-0 rounded-xl bg-[#0d1c10] text-emerald-300 hover:text-amber-400 border border-emerald-900/60 shadow-neu-pressed transition-colors"
+            aria-label="Fechar modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Form Controls */}

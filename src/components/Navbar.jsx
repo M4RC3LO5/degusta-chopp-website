@@ -38,7 +38,7 @@ export default function Navbar({ onOpenCalculator, onOpenWhatsApp }) {
               <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
                 Degusta Chopp
               </span>
-              <span className="block text-[10px] uppercase tracking-widest text-emerald-400/80 font-bold -mt-1">
+              <span className="block text-[10px] uppercase tracking-widest text-emerald-400/80 font-bold mt-0.5">
                 Distribuidora Premium
               </span>
             </div>

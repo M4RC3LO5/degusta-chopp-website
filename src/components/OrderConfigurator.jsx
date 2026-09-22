@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, Plus, Minus, Trash2, Calculator, MessageCircle, Sparkles } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Check, Plus, Minus, Trash2, Calculator, MessageCircle, Sparkles, ShoppingCart, X } from 'lucide-react';
 import {
   BRANDS,
   TYPES,
@@ -39,6 +40,30 @@ export default function OrderConfigurator({ onOpenCalculator }) {
     size: null,
     qty: 1
   });
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop && isMobileCartOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('has-modal');
+    } else {
+      document.body.style.overflow = '';
+      document.body.classList.remove('has-modal');
+    }
+    return () => { 
+      document.body.style.overflow = ''; 
+      document.body.classList.remove('has-modal');
+    };
+  }, [isMobileCartOpen, isDesktop]);
 
   const budgetListRef = useRef(null);
   const listContainerRef = useRef(null);
@@ -86,6 +111,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
         size: nextSize
       };
     });
+    if (window.innerWidth < 1024) setCurrentStep(2);
   };
 
   // Handler for selecting brand
@@ -103,6 +129,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
         size: nextSize
       };
     });
+    if (window.innerWidth < 1024) setCurrentStep(3);
   };
 
   // Handler for selecting size
@@ -141,6 +168,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
 
     // Reset draft and scroll to budget list
     setDraft({ typeId: null, brandId: null, size: null, qty: 1 });
+    setCurrentStep(1);
     setTimeout(() => {
       budgetListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 50);
@@ -241,8 +269,23 @@ export default function OrderConfigurator({ onOpenCalculator }) {
 
       <div className="space-y-6">
 
+        {/* Mobile Wizard Header */}
+        <div className="lg:hidden flex flex-col gap-2 mb-6">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Passo {currentStep} de 3</span>
+            {currentStep > 1 && (
+              <button type="button" onClick={() => setCurrentStep(prev => prev - 1)} className="text-xs font-bold text-emerald-300 underline">
+                Voltar
+              </button>
+            )}
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-emerald-950 overflow-hidden flex">
+            <div className="h-full bg-amber-400 transition-all duration-300" style={{ width: `${(currentStep / 3) * 100}%` }}></div>
+          </div>
+        </div>
+
         {/* STEP 1 — TIPO DE CHOPP */}
-        <fieldset role="radiogroup" aria-label="Selecione o tipo de chopp" className="space-y-3">
+        <fieldset role="radiogroup" aria-label="Selecione o tipo de chopp" className={`space-y-3 ${currentStep !== 1 ? 'hidden lg:block' : 'block'}`}>
           <legend className="flex items-center gap-2 text-xs font-bold uppercase text-amber-400 tracking-wider mb-2">
             <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">1</span>
             <span>Escolha o Tipo de Chopp</span>
@@ -299,7 +342,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
         <fieldset 
           role="radiogroup" 
           aria-label="Selecione a marca do chopp" 
-          className={`space-y-3 transition-opacity duration-300 ${!draft.typeId ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}
+          className={`space-y-3 lg:transition-opacity lg:duration-300 ${!draft.typeId ? 'lg:opacity-40 lg:pointer-events-none' : 'lg:opacity-100'} ${currentStep !== 2 ? 'hidden lg:block' : 'block'}`}
         >
           <legend className="flex items-center gap-2 text-xs font-bold uppercase text-amber-400 tracking-wider mb-2">
             <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">2</span>
@@ -375,7 +418,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
         <fieldset 
           role="radiogroup" 
           aria-label="Selecione o tamanho do barril" 
-          className={`space-y-3 transition-opacity duration-300 ${!draft.brandId ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}
+          className={`space-y-3 lg:transition-opacity lg:duration-300 ${!draft.brandId ? 'lg:opacity-40 lg:pointer-events-none' : 'lg:opacity-100'} ${currentStep !== 3 ? 'hidden lg:block' : 'block'}`}
         >
           <legend className="flex items-center gap-2 text-xs font-bold uppercase text-amber-400 tracking-wider mb-2">
             <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">3</span>
@@ -489,26 +532,59 @@ export default function OrderConfigurator({ onOpenCalculator }) {
 
         {/* BUDGET LIST SECTION */}
         {items.length > 0 && (
-          <div 
-            ref={budgetListRef}
-            aria-live="polite"
-            className="mt-6 pt-6 border-t border-emerald-900/60 space-y-4 animate-fadeIn"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-extrabold uppercase text-amber-300 tracking-wider flex items-center gap-2">
-                <span>Seu Orçamento</span>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs">
-                  {items.length} {items.length === 1 ? 'item' : 'itens'}
-                </span>
-              </h3>
+          <>
+            {/* Mobile Floating Action Button (Cart) */}
+            {!isDesktop && createPortal(
               <button
                 type="button"
-                onClick={handleClearBudget}
-                className="text-xs text-rose-400/80 hover:text-rose-300 transition-colors underline font-medium"
+                onClick={() => setIsMobileCartOpen(true)}
+                className="global-fab fixed bottom-[210px] right-6 z-[60] p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-gold-glow flex items-center justify-center hover:scale-110 transition-transform active:scale-95"
+                aria-label="Abrir carrinho de orçamento"
               >
-                Limpar orçamento
-              </button>
-            </div>
+                <span className="absolute -top-2 -right-2 w-6 h-6 bg-[#142718] text-amber-400 rounded-full text-[11px] flex items-center justify-center font-black border border-amber-500/40 shadow-neu-flat">
+                  {items.length}
+                </span>
+                <ShoppingCart className="w-6 h-6 fill-slate-950 stroke-slate-950" />
+              </button>,
+              document.body
+            )}
+
+            {(isDesktop || isMobileCartOpen) && (() => {
+              const content = (
+                <div 
+                  ref={budgetListRef}
+                  aria-live="polite"
+                  className={`animate-fadeIn space-y-4 ${
+                    isDesktop 
+                      ? 'mt-6 pt-6 border-t border-emerald-900/60' 
+                      : 'relative z-10 w-full bg-[#142718] p-5 sm:p-6 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] m-0 max-h-[90vh] overflow-y-auto pointer-events-auto'
+                  }`}
+                >
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-extrabold uppercase text-amber-300 tracking-wider flex items-center gap-2">
+                  <span>Seu Orçamento</span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs">
+                    {items.length} {items.length === 1 ? 'item' : 'itens'}
+                  </span>
+                </h3>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={handleClearBudget}
+                    className="text-xs text-rose-400/80 hover:text-rose-300 transition-colors underline font-medium"
+                  >
+                    <span className="lg:hidden">Limpar</span>
+                    <span className="hidden lg:inline">Limpar orçamento</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setIsMobileCartOpen(false)} 
+                    className="lg:hidden p-1.5 text-slate-400 hover:text-white transition-colors bg-[#0d1c10] rounded-full border border-emerald-900/50"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
 
             {/* Item List Rows */}
             <div className="relative">
@@ -541,7 +617,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
                       )}
                       <div className="flex flex-col min-w-0">
                         <span className="font-bold text-slate-100 leading-tight">
-                          {type?.name} — {brand?.name}
+                          {type?.name.replace(/^Chopp /i, '')} — {brand?.name}
                         </span>
                         <span className="text-[11px] text-emerald-300/70">
                           {item.qty}x {item.size}L
@@ -555,27 +631,27 @@ export default function OrderConfigurator({ onOpenCalculator }) {
                       </span>
 
                       {/* Item Stepper */}
-                      <div className="flex items-center gap-1 bg-[#142718] p-1 rounded-lg border border-emerald-900/60">
+                      <div className="flex flex-col-reverse lg:flex-row items-center gap-1 bg-[#142718] p-1 rounded-lg border border-emerald-900/60">
                         <button
                           type="button"
                           onClick={() => handleItemQtyChange(item.id, -1)}
                           disabled={item.qty <= 1}
-                          className="w-5 h-5 text-amber-400 hover:bg-emerald-900/50 disabled:opacity-30 rounded flex items-center justify-center"
+                          className="w-8 h-8 lg:w-5 lg:h-5 text-amber-400 hover:bg-emerald-900/50 disabled:opacity-30 rounded flex items-center justify-center shrink-0 transition-colors"
                           aria-label="Diminuir quantidade do item"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-4 h-4 lg:w-3 lg:h-3" />
                         </button>
-                        <span className="px-1.5 font-extrabold text-slate-200 text-xs">
+                        <span className="py-1 lg:py-0 px-0 lg:px-1.5 font-extrabold text-slate-200 text-sm lg:text-xs">
                           {item.qty}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleItemQtyChange(item.id, 1)}
                           disabled={item.qty >= MAX_QTY_PER_ITEM}
-                          className="w-5 h-5 text-amber-400 hover:bg-emerald-900/50 disabled:opacity-30 rounded flex items-center justify-center"
+                          className="w-8 h-8 lg:w-5 lg:h-5 text-amber-400 hover:bg-emerald-900/50 disabled:opacity-30 rounded flex items-center justify-center shrink-0 transition-colors"
                           aria-label="Aumentar quantidade do item"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-4 h-4 lg:w-3 lg:h-3" />
                         </button>
                       </div>
 
@@ -636,13 +712,26 @@ export default function OrderConfigurator({ onOpenCalculator }) {
               <button
                 type="button"
                 onClick={() => window.open(buildWhatsAppUrl(items), '_blank')}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 text-slate-950 font-black text-sm uppercase tracking-wider shadow-gold-glow hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2.5"
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 text-slate-950 font-black text-[13px] sm:text-sm uppercase tracking-normal sm:tracking-wider shadow-gold-glow hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 sm:gap-2.5"
               >
                 <MessageCircle className="w-5 h-5 fill-slate-950 stroke-slate-950" />
                 <span>Enviar Orçamento pelo WhatsApp</span>
               </button>
             </div>
-          </div>
+                </div>
+              );
+              return isDesktop ? content : createPortal(
+                <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none sm:p-4">
+                  <div 
+                    className="absolute inset-0 bg-[#0a160d]/80 backdrop-blur-sm pointer-events-auto animate-fadeIn"
+                    onClick={() => setIsMobileCartOpen(false)}
+                  />
+                  {content}
+                </div>, 
+                document.body
+              );
+            })()}
+          </>
         )}
 
       </div>
