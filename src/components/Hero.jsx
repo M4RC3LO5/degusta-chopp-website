@@ -17,7 +17,7 @@ export default function Hero({ onOpenWhatsApp, onOpenCalculator }) {
       <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
           {/* Main Content Column */}
           <div className="lg:col-span-7 space-y-8 text-center lg:text-left">

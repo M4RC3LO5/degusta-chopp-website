@@ -41,9 +41,23 @@ export default function OrderConfigurator({ onOpenCalculator }) {
   });
 
   const budgetListRef = useRef(null);
+  const listContainerRef = useRef(null);
   const typeRefs = useRef({});
   const brandRefs = useRef({});
   const sizeRefs = useRef({});
+
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
+
+  const checkScroll = () => {
+    if (listContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = listContainerRef.current;
+      setIsScrolledToBottom(scrollHeight - scrollTop - clientHeight < 2);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+  }, [items]);
 
   // Persist items to localStorage on change
   useEffect(() => {
@@ -291,7 +305,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
             <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">2</span>
             <span>Escolha a Marca</span>
             {draft.typeId && minPrice30ForType && (
-              <span className="text-[11px] text-emerald-300/70 font-normal lowercase tracking-normal ml-auto">
+              <span className="text-[11px] text-emerald-300/70 font-normal tracking-normal ml-auto">
                 (a partir de {formatPrice(minPrice30ForType)})
               </span>
             )}
@@ -497,8 +511,13 @@ export default function OrderConfigurator({ onOpenCalculator }) {
             </div>
 
             {/* Item List Rows */}
-            <div className="space-y-2.5">
-              {items.map(item => {
+            <div className="relative">
+              <div 
+                ref={listContainerRef}
+                onScroll={checkScroll}
+                className="space-y-2.5 max-h-[320px] overflow-y-scroll overflow-x-hidden pr-2 [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:bg-emerald-950/40 [&::-webkit-scrollbar-thumb]:bg-amber-600/40 [&::-webkit-scrollbar-thumb:hover]:bg-amber-500/60 [&::-webkit-scrollbar-thumb]:rounded-full"
+              >
+                {items.map(item => {
                 const type = TYPES.find(t => t.id === item.typeId);
                 const brand = BRANDS.find(b => b.id === item.brandId);
                 const unitPrice = getPrice(item.typeId, item.brandId, item.size) || 0;
@@ -521,7 +540,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
                         />
                       )}
                       <div className="flex flex-col min-w-0">
-                        <span className="font-bold text-slate-100 truncate">
+                        <span className="font-bold text-slate-100 leading-tight">
                           {type?.name} — {brand?.name}
                         </span>
                         <span className="text-[11px] text-emerald-300/70">
@@ -573,6 +592,12 @@ export default function OrderConfigurator({ onOpenCalculator }) {
                   </div>
                 );
               })}
+              </div>
+
+              {/* Bottom Fade indicator */}
+              {!isScrolledToBottom && (
+                <div className="absolute bottom-0 left-0 right-3.5 h-8 bg-gradient-to-t from-[#142718] to-transparent pointer-events-none" />
+              )}
             </div>
 
             {/* Card Footer Totals & Promo Progress */}
