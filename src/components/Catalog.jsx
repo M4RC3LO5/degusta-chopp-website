@@ -110,7 +110,7 @@ export default function Catalog({ onOpenWhatsApp }) {
                   <div className="rounded-2xl bg-[#0d1c10] p-4 lg:p-5 border border-emerald-900/50 shadow-neu-pressed mb-5">
                     
                     {/* Table Header */}
-                    <div className="grid grid-cols-[2fr_1fr_1fr] gap-3 items-center text-xs lg:text-sm font-extrabold uppercase text-amber-400 pb-3 border-b border-emerald-800/50 mb-4">
+                    <div className="grid grid-cols-[2fr_1fr_1fr] gap-1 md:gap-3 items-center text-[10px] md:text-xs lg:text-sm font-extrabold uppercase text-amber-400 pb-3 border-b border-emerald-800/50 mb-4">
                       <span className="text-left">MARCA / FABRICANTE</span>
                       <span className="text-center">BARRIL 30L</span>
                       <span className="text-center">BARRIL 50L</span>
@@ -131,14 +131,14 @@ export default function Catalog({ onOpenWhatsApp }) {
                           return (
                             <div
                               key={brand.id}
-                              className="grid grid-cols-[2fr_1fr_1fr] gap-3 items-center text-xs hover:bg-[#142718]/60 p-1.5 rounded-xl transition-colors"
+                              className="grid grid-cols-[2fr_1fr_1fr] gap-1 md:gap-3 items-center text-xs hover:bg-[#142718]/60 p-1 md:p-1.5 rounded-xl transition-colors"
                             >
                               {/* Brand info with logo & line-clamp-2 subtitle */}
-                              <div className="flex items-center gap-3 min-w-0 text-left">
+                              <div className="flex items-center gap-2 md:gap-3 min-w-0 text-left">
                                 <img
                                   src={brand.logo}
                                   alt={`Logo ${brand.name}`}
-                                  className="w-14 h-14 object-contain rounded-md bg-white/5 p-1 shrink-0"
+                                  className="w-8 h-8 md:w-14 md:h-14 object-contain rounded-md bg-white/5 p-1 shrink-0"
                                   loading="lazy"
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
@@ -148,27 +148,27 @@ export default function Catalog({ onOpenWhatsApp }) {
                                     }
                                   }}
                                 />
-                                <div className="hidden w-12 h-12 rounded-md bg-emerald-900/50 text-amber-400 font-extrabold items-center justify-center text-lg shrink-0 border border-emerald-700/50">
+                                <div className="hidden w-8 h-8 md:w-14 md:h-14 rounded-md bg-emerald-900/50 text-amber-400 font-extrabold items-center justify-center text-sm md:text-lg shrink-0 border border-emerald-700/50">
                                   {brand.name.charAt(0)}
                                 </div>
                                 <div className="flex flex-col min-w-0 justify-center">
-                                  <span className="text-lg font-extrabold text-slate-100 truncate">{brand.name}</span>
+                                  <span className="text-xs md:text-lg font-extrabold text-slate-100 truncate">{brand.name}</span>
                                   {subtitle && (
-                                    <span className="text-xs text-emerald-300/70 line-clamp-2 font-medium">({subtitle})</span>
+                                    <span className="hidden md:block text-xs text-emerald-300/70 line-clamp-2 font-medium">({subtitle})</span>
                                   )}
                                 </div>
                               </div>
 
                               {/* Price 30L */}
                               <div className="flex items-center justify-center">
-                                <span className="border border-emerald-700/50 rounded-md py-2 px-3 text-center text-amber-400 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-lg lg:text-xl whitespace-nowrap min-h-[44px] shadow-sm">
+                                <span className="border border-emerald-700/50 rounded-md py-1 px-1 md:py-2 md:px-3 text-center text-amber-400 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-[11px] md:text-lg lg:text-xl whitespace-nowrap min-h-[36px] md:min-h-[44px] shadow-sm">
                                   {formatPrice(price30)}
                                 </span>
                               </div>
 
                               {/* Price 50L */}
                               <div className="flex items-center justify-center">
-                                <span className="border border-emerald-700/50 rounded-md py-2 px-3 text-center text-yellow-300 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-lg lg:text-xl whitespace-nowrap min-h-[44px] shadow-sm">
+                                <span className="border border-emerald-700/50 rounded-md py-1 px-1 md:py-2 md:px-3 text-center text-yellow-300 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-[11px] md:text-lg lg:text-xl whitespace-nowrap min-h-[36px] md:min-h-[44px] shadow-sm">
                                   {formatPrice(price50)}
                                 </span>
                               </div>
