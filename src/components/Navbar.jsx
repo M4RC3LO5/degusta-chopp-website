@@ -29,16 +29,20 @@ export default function Navbar({ onOpenCalculator, onOpenWhatsApp }) {
           <a 
             href="#hero" 
             onClick={(e) => handleNavClick(e, '#hero')}
-            className="flex items-center gap-3 group focus:outline-none"
+            className="flex items-center gap-2 md:gap-3 group focus:outline-none"
           >
-            <div className="w-12 h-12 rounded-xl bg-[#142718] flex items-center justify-center shadow-neu-flat border border-amber-500/30 group-hover:border-amber-400 group-hover:shadow-neu-gold transition-all duration-300">
-              <Beer className="w-7 h-7 text-amber-400 group-hover:scale-110 transition-transform duration-300" />
-            </div>
-            <div>
-              <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
+            <img 
+              src="/logo/logo-simbolo.webp" 
+              alt="Degusta Chopp" 
+              width={64} 
+              height={64} 
+              className="h-14 w-14 md:h-16 md:w-16 object-contain group-hover:scale-105 transition-transform duration-300 shrink-0" 
+            />
+            <div className="flex flex-col justify-center">
+              <span className="text-2xl md:text-[26px] font-extrabold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent drop-shadow-sm leading-none">
                 Degusta Chopp
               </span>
-              <span className="block text-[10px] uppercase tracking-widest text-emerald-400/80 font-bold mt-0.5">
+              <span className="block text-[10px] uppercase tracking-widest text-emerald-400/80 font-bold mt-1 leading-none">
                 Distribuidora Premium
               </span>
             </div>

@@ -14,40 +14,20 @@ export default function Footer({ onOpenWhatsApp }) {
           
           {/* Brand Info Column */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#142718] flex items-center justify-center border border-amber-500/30 shadow-neu-flat">
-                <Beer className="w-6 h-6 text-amber-400" />
-              </div>
-              <span className="text-xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
-                Degusta Chopp
-              </span>
+            <div className="flex items-center mb-2">
+              <img 
+                src="/logo/logo-selo.webp" 
+                alt="Degusta Chopp" 
+                width={144} 
+                height={144} 
+                className="w-28 h-28 md:w-36 md:h-36 object-contain" 
+                loading="lazy" 
+              />
             </div>
 
             <p className="text-xs text-emerald-200/70 leading-relaxed">
               Sua distribuidora de chopp de confiança em São Paulo e região. Leve o sabor e a cremosidade do chopp perfeito para a sua festa ou evento.
             </p>
-
-            <div className="pt-2 flex items-center gap-3">
-              {/* WhatsApp icon link */}
-              <button
-                onClick={() => onOpenWhatsApp("Olá! Vim pelo rodapé do site.")}
-                className="w-10 h-10 rounded-xl bg-[#142718] border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-neu-flat hover:shadow-neu-gold hover:text-amber-300 transition-all"
-                aria-label="WhatsApp Degusta Chopp"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </button>
-
-              {/* Instagram icon link */}
-              <a
-                href="https://instagram.com/degustachopp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-xl bg-[#142718] border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-neu-flat hover:shadow-neu-gold hover:text-amber-300 transition-all"
-                aria-label="Instagram @degustachopp"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Contact Details Column */}
@@ -116,11 +96,11 @@ export default function Footer({ onOpenWhatsApp }) {
               Pagamento & Garantia
             </h4>
             <div className="p-4 rounded-xl bg-[#142718] border border-emerald-900/60 shadow-neu-pressed space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
-                <span>Chopeira Testada e Higienizada</span>
+              <div className="flex items-center gap-2 text-sm sm:text-base font-extrabold text-amber-300">
+                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 shrink-0" />
+                <span className="leading-tight">Chopeira Testada e Higienizada</span>
               </div>
-              <p className="text-[11px] text-emerald-200/70">
+              <p className="text-xs sm:text-sm text-emerald-100/90 pt-1">
                 Aceitamos Pix, Cartões de Crédito (até 12x) e Débito no momento da entrega.
               </p>
             </div>
