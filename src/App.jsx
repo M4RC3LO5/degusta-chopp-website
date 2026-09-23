@@ -6,15 +6,27 @@ import Catalog from './components/Catalog';
 import ChoppCalculatorModal from './components/ChoppCalculatorModal';
 import Footer from './components/Footer';
 import { MessageCircle, Calculator, ChevronUp } from 'lucide-react';
-import { WHATSAPP_NUMBER } from './utils/whatsapp';
+import { WHATSAPP_NUMBER, WHATSAPP_SIGNATURE } from './utils/whatsapp';
 
 export default function App() {
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [preSelectedType, setPreSelectedType] = useState(null);
 
   const handleOpenWhatsApp = (customMessage = '') => {
-    const text = customMessage || 'Olá! Gostaria de solicitar um orçamento para entrega de chopp.';
+    let text = customMessage || 'Olá! Gostaria de solicitar um orçamento para entrega de chopp.';
+    text += WHATSAPP_SIGNATURE;
     const encodedText = encodeURIComponent(text);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`, '_blank');
+  };
+
+  const handleCatalogSelectType = (typeId) => {
+    setPreSelectedType(typeId);
+    const confEl = document.getElementById('configurador');
+    if (confEl) {
+      confEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const scrollToTop = () => {
@@ -35,6 +47,8 @@ export default function App() {
         <Hero 
           onOpenWhatsApp={handleOpenWhatsApp}
           onOpenCalculator={() => setIsCalculatorOpen(true)}
+          preSelectedType={preSelectedType}
+          onClearPreSelectedType={() => setPreSelectedType(null)}
         />
 
         {/* Highlight Promo Banner */}
@@ -45,6 +59,7 @@ export default function App() {
         {/* Menu / Catalog Section */}
         <Catalog 
           onOpenWhatsApp={handleOpenWhatsApp}
+          onSelectType={handleCatalogSelectType}
         />
       </main>
 

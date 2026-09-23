@@ -57,8 +57,10 @@ ${promoLine}
 
 📅 Data do evento:
 📍 Endereço de entrega:
-🕐 Horário:`;
+🕐 Horário:${WHATSAPP_SIGNATURE}`;
 }
+
+export const WHATSAPP_SIGNATURE = '\n\n---\n_Enviado pelo site degustachopp_';
 
 // Fallback seguro para Node.js (scripts) vs Vite
 const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {};

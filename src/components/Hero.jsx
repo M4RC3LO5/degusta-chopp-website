@@ -2,7 +2,7 @@ import React from 'react';
 import { MessageCircle, Flame, Truck, Award, ChevronDown, Sparkles } from 'lucide-react';
 import OrderConfigurator from './OrderConfigurator';
 
-export default function Hero({ onOpenWhatsApp, onOpenCalculator }) {
+export default function Hero({ onOpenWhatsApp, onOpenCalculator, preSelectedType, onClearPreSelectedType }) {
   const handleScrollToCatalog = () => {
     const element = document.querySelector('#catalogo');
     if (element) {
@@ -11,7 +11,7 @@ export default function Hero({ onOpenWhatsApp, onOpenCalculator }) {
   };
 
   return (
-    <section id="hero" className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 bg-[#0a160d]">
+    <section id="hero" className="relative overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24 bg-[#0a160d]">
       {/* Subtle Background Glow Spheres */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none z-0"></div>
       <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
@@ -94,7 +94,11 @@ export default function Hero({ onOpenWhatsApp, onOpenCalculator }) {
 
           {/* Right Column: Order Configurator Component */}
           <div className="lg:col-span-5 flex justify-center">
-            <OrderConfigurator onOpenCalculator={onOpenCalculator} />
+            <OrderConfigurator 
+              onOpenCalculator={onOpenCalculator} 
+              preSelectedType={preSelectedType}
+              onClearPreSelectedType={onClearPreSelectedType}
+            />
           </div>
 
         </div>

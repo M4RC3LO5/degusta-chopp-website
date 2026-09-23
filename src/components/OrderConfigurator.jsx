@@ -13,7 +13,7 @@ import {
 } from '../data/products';
 import { buildWhatsAppUrl } from '../utils/whatsapp';
 
-export default function OrderConfigurator({ onOpenCalculator }) {
+export default function OrderConfigurator({ onOpenCalculator, preSelectedType, onClearPreSelectedType }) {
   // Budget items list (hydrated from localStorage)
   const [items, setItems] = useState(() => {
     try {
@@ -92,6 +92,13 @@ export default function OrderConfigurator({ onOpenCalculator }) {
       // ignore storage errors
     }
   }, [items]);
+
+  useEffect(() => {
+    if (preSelectedType) {
+      handleSelectType(preSelectedType);
+      if (onClearPreSelectedType) onClearPreSelectedType();
+    }
+  }, [preSelectedType]);
 
   // Handler for selecting type
   const handleSelectType = (typeId) => {
@@ -259,7 +266,7 @@ export default function OrderConfigurator({ onOpenCalculator }) {
     : null;
 
   return (
-    <div className="w-full max-w-xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#142718] border border-amber-500/30 shadow-neu-gold text-slate-100">
+    <div id="configurador" className="scroll-mt-24 lg:scroll-mt-28 w-full max-w-xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#142718] border border-amber-500/30 shadow-neu-gold text-slate-100">
       
       {/* Configurator Header */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-emerald-900/60">
