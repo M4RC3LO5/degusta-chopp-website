@@ -6,12 +6,13 @@ import RequireAuth, { FullScreenLoading } from './auth/RequireAuth';
 import Placeholder from './pages/Placeholder';
 import UsersPage from './pages/UsersPage';
 import PricesPage from './pages/PricesPage';
+import CatalogPage from './pages/CatalogPage';
 import { adminConfigured } from './supabase';
 import { canAccess, homePathForRole } from './rules';
 
 const PAGES = {
   precos: { title: 'Preços', card: 5, element: <PricesPage /> },
-  catalogo: { title: 'Catálogo', card: 6 },
+  catalogo: { title: 'Catálogo', card: 6, element: <CatalogPage /> },
   config: { title: 'Configurações', card: 7 },
   historico: { title: 'Histórico', card: 7 },
   usuarios: { title: 'Usuários', card: 4, element: <UsersPage /> }

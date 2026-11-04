@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ChevronDown, Plus, Undo2 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useAuth } from '../auth/AuthContext';
@@ -23,7 +24,8 @@ export default function PricesPage() {
   const [data, setData] = useState({ brands: [], flavors: [], offers: [], names: new Map() });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
-  const [openId, setOpenId] = useState(null);
+  const location = useLocation();
+  const [openId, setOpenId] = useState(location.state?.flavorId ?? null);   // vindo de "Novo sabor": já abre o sabor criado
   const [adding, setAdding] = useState({});          // flavorId -> brandId escolhido (oferta nova ainda não salva)
   const [toast, setToast] = useState(null);          // { text, undo?, secondsLeft }
   const toastTimer = useRef(null);

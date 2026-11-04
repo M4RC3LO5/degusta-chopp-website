@@ -42,6 +42,7 @@ export const RULES = {
     bucketMime: ['image/webp'],
     brandLogo: { ratio: '1:1', width: 400, height: 400, maxBytes: 60 * 1024, minInput: [200, 200] },
     flavorGlass: { ratio: '2:3', width: 400, height: 600, maxBytes: 80 * 1024, minInput: [400, 600] },
+    compress: { startQuality: 0.85, step: 0.05, minQuality: 0.5 },   // desce de 0.05 até caber; abaixo de 0.5 recusa
     inputMaxBytes: 5 * 1024 * 1024,
     inputTypes: ['image/jpeg', 'image/png', 'image/webp']
   }
