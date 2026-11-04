@@ -4,7 +4,7 @@ import PriceInput from './PriceInput';
 import { bigVariations, isDirty, priceToText, validateOffer, variationMessage } from '../../pricing';
 import { RULES } from '../../rules';
 
-// Colunas da tabela no desktop (md+): marca | subtítulo | 30L | 50L | ativa | salvar
+// Colunas da tabela no desktop (md+): marca | subtítulo | 30L | 50L | ativa | ações (Salvar; em oferta nova, Cancelar empilhado abaixo, dentro da coluna)
 export const GRID_COLS = 'lg:grid lg:grid-cols-[170px_minmax(160px,1fr)_140px_140px_100px_104px] lg:gap-x-3 lg:gap-y-1 lg:items-start';
 
 const EMPTY = { subtitle: null, price_30: null, price_50: null, active: true };
@@ -118,15 +118,15 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
       {errors.prices && <p role="alert" className="text-xs font-semibold text-rose-300 lg:col-span-full lg:row-start-2">{errors.prices}</p>}
 
       {/* Salvar (por linha) */}
-      <div className="flex gap-2 lg:col-start-6 lg:row-start-1">
+      <div className="flex gap-2 lg:flex-col-reverse lg:col-start-6 lg:row-start-1 lg:min-w-0">
         {!offer && (
-          <button type="button" onClick={onCancelNew} disabled={busy} className="min-h-[44px] px-3 rounded-xl border border-emerald-900/60 bg-[#0d1c10] text-xs font-bold text-emerald-200 disabled:opacity-50">Cancelar</button>
+          <button type="button" onClick={onCancelNew} disabled={busy} className="min-h-[44px] px-3 lg:w-full rounded-xl border border-emerald-900/60 bg-[#0d1c10] text-xs font-bold text-emerald-200 disabled:opacity-50">Cancelar</button>
         )}
         <button
           type="button"
           onClick={save}
           disabled={busy || hasErrors || !dirty}
-          className="min-h-[44px] flex-1 lg:flex-none lg:min-w-[96px] px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black uppercase tracking-wide disabled:opacity-40"
+          className="min-h-[44px] flex-1 lg:flex-none lg:w-full px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black uppercase tracking-wide disabled:opacity-40"
         >
           {busy ? 'Salvando…' : 'Salvar'}
         </button>
