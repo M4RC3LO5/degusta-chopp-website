@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@config "../../tailwind.admin.config.js";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .shadow-neu-gold {
+    box-shadow: 6px 6px 16px #060e08, -6px -6px 16px #1c361e, 0 0 20px rgba(245, 158, 11, 0.3);
+  }
+  .shadow-gold-glow {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+  }
+}

@@ -3,6 +3,7 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "!./src/admin/**",   // o admin tem CSS próprio (tailwind.admin.config.js): a landing não herda as classes dele
   ],
   theme: {
     extend: {
