@@ -19,7 +19,15 @@ export const RULES = {
     badge: { max: 18 },
     badgeColors: ['amber', 'emerald', 'yellow', 'purple', 'orange']
   },
-  offer: { subtitleMax: 22, priceMin: 0, priceMax: 5000 },
+  offer: {
+    subtitleMax: 22,
+    subtitleWarnAt: 0.9,        // contador âmbar a partir de 90% do limite
+    priceMin: 0,                // preço precisa ser > priceMin
+    priceMax: 5000,             // e <= priceMax
+    sizes: [30, 50],            // litros (fixos nesta fase)
+    variationPct: 0.3,          // variação > 30% do valor salvo pede confirmação
+    undoSeconds: 10             // janela do "Desfazer" depois de salvar
+  },
   settings: {
     whatsapp: /^55[1-9][0-9]{9,10}$/,
     promoMinLiters: { min: 0, max: 500 },
