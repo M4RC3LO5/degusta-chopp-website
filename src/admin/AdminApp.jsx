@@ -5,11 +5,12 @@ import LoginPage from './auth/LoginPage';
 import RequireAuth, { FullScreenLoading } from './auth/RequireAuth';
 import Placeholder from './pages/Placeholder';
 import UsersPage from './pages/UsersPage';
+import PricesPage from './pages/PricesPage';
 import { adminConfigured } from './supabase';
 import { canAccess, homePathForRole } from './rules';
 
 const PAGES = {
-  precos: { title: 'Preços', card: 5 },
+  precos: { title: 'Preços', card: 5, element: <PricesPage /> },
   catalogo: { title: 'Catálogo', card: 6 },
   config: { title: 'Configurações', card: 7 },
   historico: { title: 'Histórico', card: 7 },

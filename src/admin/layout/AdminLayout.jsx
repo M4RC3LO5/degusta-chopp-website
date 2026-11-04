@@ -13,7 +13,7 @@ export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-[#0a160d] text-slate-100 flex flex-col">
       <header className="sticky top-0 z-40 bg-[#0a160d]/95 backdrop-blur border-b border-[#1b321f]">
-        <div className="max-w-3xl mx-auto h-14 px-4 flex items-center justify-between gap-3">
+        <div className="max-w-3xl lg:max-w-5xl mx-auto h-14 px-4 flex items-center justify-between gap-3">
           <div className="min-w-0 flex items-center gap-2.5">
             <img src="/logo/logo-simbolo.webp" alt="" width={32} height={32} className="h-8 w-8 object-contain shrink-0" />
             <div className="min-w-0 leading-tight">
@@ -32,10 +32,10 @@ export default function AdminLayout({ children }) {
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-6 pb-28">{children}</main>
+      <main className="flex-1 w-full max-w-3xl lg:max-w-5xl mx-auto px-4 py-6 pb-28">{children}</main>
 
       <nav aria-label="Navegação do admin" className="fixed bottom-0 inset-x-0 z-40 bg-[#0d1c10]/95 backdrop-blur border-t border-[#1b321f] pb-[env(safe-area-inset-bottom)]">
-        <ul className="max-w-3xl mx-auto flex">
+        <ul className="max-w-3xl lg:max-w-5xl mx-auto flex">
           {items.map(({ path, label, icon }) => {
             const Icon = ICONS[icon];
             return (
