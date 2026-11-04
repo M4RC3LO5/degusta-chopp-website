@@ -1,8 +1,17 @@
 import React from 'react';
 import { Flame, Sparkles, MessageCircle, CheckCircle } from 'lucide-react';
+import { useCatalog } from '../data/CatalogContext';
+
+function joinNames(names) {
+  if (names.length <= 1) return names.join('');
+  return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`;
+}
 
 export default function PromoBanner({ onOpenWhatsApp }) {
-  const promoText = "Pedidos acima de 50 litros: Isento de locação de chopeira!";
+  const { PROMO_MIN_LITERS, BRANDS } = useCatalog();
+  const promoText = PROMO_MIN_LITERS > 0
+    ? `Pedidos acima de ${PROMO_MIN_LITERS} litros: Isento de locação de chopeira!`
+    : 'Todos os pedidos: Isento de locação de chopeira!';
 
   return (
     <section id="promo" className="relative z-20 py-8 bg-[#071109] border-y border-amber-500/30 overflow-hidden">
@@ -28,7 +37,7 @@ export default function PromoBanner({ onOpenWhatsApp }) {
               </h2>
               <p className="text-xs sm:text-sm text-emerald-200/80 mt-1 flex items-center justify-center md:justify-start gap-2">
                 <CheckCircle className="w-4 h-4 text-amber-400" />
-                <span>Válido para todas as marcas do catálogo (Bru, Germânia e Brahma).</span>
+                <span>Válido para todas as marcas do catálogo ({joinNames(BRANDS.map(b => b.name))}).</span>
               </p>
             </div>
           </div>

@@ -1,8 +1,10 @@
 import React from 'react';
 import { MessageCircle, Flame, Truck, Award, ChevronDown, Sparkles } from 'lucide-react';
 import OrderConfigurator from './OrderConfigurator';
+import { useCatalog } from '../data/CatalogContext';
 
 export default function Hero({ onOpenWhatsApp, onOpenCalculator, preSelectedType, onClearPreSelectedType }) {
+  const { PROMO_MIN_LITERS } = useCatalog();
   const handleScrollToCatalog = () => {
     const element = document.querySelector('#catalogo');
     if (element) {
@@ -75,7 +77,7 @@ export default function Hero({ onOpenWhatsApp, onOpenCalculator, preSelectedType
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-amber-200 uppercase tracking-wider">Chopeira Inclusa</h4>
-                  <p className="text-xs text-emerald-200/70 mt-0.5">Isenção de taxa em pedidos &gt; 50L</p>
+                  <p className="text-xs text-emerald-200/70 mt-0.5">Isenção de taxa em pedidos &gt; {PROMO_MIN_LITERS}L</p>
                 </div>
               </div>
 

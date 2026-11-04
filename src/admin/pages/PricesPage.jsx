@@ -5,6 +5,7 @@ import { supabase } from '../supabase';
 import { useAuth } from '../auth/AuthContext';
 import OfferRow, { GRID_COLS } from './prices/OfferRow';
 import { RULES } from '../rules';
+import { loadStaffNames } from '../staffNames';
 
 const SAVE_FIELDS = ['subtitle', 'price_30', 'price_50', 'active'];
 
@@ -35,10 +36,10 @@ export default function PricesPage() {
       supabase.from('brands').select('*').order('sort_order'),
       supabase.from('flavors').select('*').order('sort_order'),
       supabase.from('offers').select('*'),
-      supabase.from('profiles').select('id, full_name')     // RLS: o dono vê todos; os demais só o próprio
+      loadStaffNames()      // RPC staff_names(): toda a equipe vê o nome (profiles segue restrito por RLS)
     ]);
     if (b.error || f.error || o.error) { setLoadError('Não foi possível carregar os preços.'); setLoading(false); return; }
-    setData({ brands: b.data, flavors: f.data, offers: o.data, names: new Map((p.data || []).map(x => [x.id, x.full_name])) });
+    setData({ brands: b.data, flavors: f.data, offers: o.data, names: p });
     setOpenId(prev => prev ?? f.data[0]?.id ?? null);
     setLoadError('');
     setLoading(false);

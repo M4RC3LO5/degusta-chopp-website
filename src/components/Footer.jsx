@@ -1,8 +1,18 @@
 import React from 'react';
 import { Beer, MessageCircle, Instagram, Phone, MapPin, Clock, ShieldCheck } from 'lucide-react';
+import { useCatalog } from '../data/CatalogContext';
+
+// 5511991069099 -> "11 99106-9099" (fixo: 5511 3456-7890)
+function formatPhone(whatsapp) {
+  const national = String(whatsapp || '').replace(/^55/, '');
+  if (national.length === 11) return `${national.slice(0, 2)} ${national.slice(2, 7)}-${national.slice(7)}`;
+  if (national.length === 10) return `${national.slice(0, 2)} ${national.slice(2, 6)}-${national.slice(6)}`;
+  return national;
+}
 
 export default function Footer({ onOpenWhatsApp }) {
   const currentYear = new Date().getFullYear();
+  const { whatsapp, settings } = useCatalog();
 
   return (
     <footer id="contato" className="bg-[#060e08] border-t border-amber-500/30 text-slate-100 pt-16 pb-12 relative overflow-hidden">
@@ -47,27 +57,29 @@ export default function Footer({ onOpenWhatsApp }) {
                   </div>
                   <div>
                     <span className="block text-[10px] text-emerald-300/60 uppercase font-bold">WhatsApp / Telefone</span>
-                    <span className="font-bold text-sm text-amber-300">11 99106-9099</span>
+                    <span className="font-bold text-sm text-amber-300">{formatPhone(whatsapp)}</span>
                   </div>
                 </button>
               </li>
 
-              <li>
-                <a
-                  href="https://instagram.com/degustachopp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-emerald-100/90 hover:text-amber-300 transition-colors group"
-                >
-                  <div className="p-2 rounded-lg bg-[#142718] border border-amber-500/20 text-amber-400 group-hover:scale-110 transition-transform">
-                    <Instagram className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="block text-[10px] text-emerald-300/60 uppercase font-bold">Instagram</span>
-                    <span className="font-bold text-sm text-slate-100">@degustachopp</span>
-                  </div>
-                </a>
-              </li>
+              {settings.instagram && (
+                <li>
+                  <a
+                    href={`https://instagram.com/${settings.instagram}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-emerald-100/90 hover:text-amber-300 transition-colors group"
+                  >
+                    <div className="p-2 rounded-lg bg-[#142718] border border-amber-500/20 text-amber-400 group-hover:scale-110 transition-transform">
+                      <Instagram className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] text-emerald-300/60 uppercase font-bold">Instagram</span>
+                      <span className="font-bold text-sm text-slate-100">@{settings.instagram}</span>
+                    </div>
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -79,13 +91,13 @@ export default function Footer({ onOpenWhatsApp }) {
             <div className="flex items-start gap-2.5 text-xs text-emerald-200/80">
               <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <p className="leading-relaxed">
-                São Paulo (Capital), Grande SP, Região do ABC, Osasco, Barueri, Alphaville e Guarulhos.
+                {settings.regions}
               </p>
             </div>
             <div className="flex items-start gap-2.5 text-xs text-emerald-200/80 pt-1">
               <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <p className="leading-relaxed">
-                Atendimento: Segunda a Sábado das 08h às 20h. Entregas programadas para fins de semana e feriados.
+                Atendimento: {settings.businessHours.replace(/\.$/, '')}. Entregas programadas para fins de semana e feriados.
               </p>
             </div>
           </div>
@@ -101,7 +113,7 @@ export default function Footer({ onOpenWhatsApp }) {
                 <span className="leading-tight">Chopeira Testada e Higienizada</span>
               </div>
               <p className="text-xs sm:text-sm text-emerald-100/90 pt-1">
-                Aceitamos Pix, Cartões de Crédito (até 12x) e Débito no momento da entrega.
+                Aceitamos {settings.paymentInfo}
               </p>
             </div>
           </div>
