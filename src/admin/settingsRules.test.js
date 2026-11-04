@@ -10,7 +10,7 @@ test('máscara e conversão do WhatsApp', () => {
   assert.equal(storedToPhone('5511991069099'), '(11) 99106-9099');
 });
 
-const ok = { whatsapp: '(11) 99999-9999', promoMinLiters: '50', businessHours: 'Seg a Sáb', regions: 'SP', paymentInfo: 'Pix', instagram: '@Degusta' };
+const ok = { whatsapp: '(11) 99999-9999', promoMinLiters: '50', businessHours: 'Seg a Sáb', regions: 'SP', paymentInfo: 'Pix', instagram: '@Degusta', storeLat: '-23,644057', storeLng: '-46.494256', storeRadiusM: '200' };
 
 test('validação do formulário', () => {
   const r = validateSettings(ok);
@@ -28,4 +28,17 @@ test('validação do formulário', () => {
   assert.ok(validateSettings({ ...ok, instagram: 'a b' }).errors.instagram);
   assert.equal(validateSettings({ ...ok, instagram: '' }).values.instagram, null);
   assert.equal(normalizeInstagram('@@Foo'), 'foo');
+});
+
+test('localização da loja e raio', () => {
+  const r = validateSettings(ok);
+  assert.equal(r.values.store_lat, -23.644057);
+  assert.equal(r.values.store_lng, -46.494256);
+  assert.equal(r.values.store_radius_m, 200);
+  assert.ok(validateSettings({ ...ok, storeLat: '91' }).errors.storeLat);
+  assert.ok(validateSettings({ ...ok, storeLng: '-181' }).errors.storeLng);
+  assert.ok(validateSettings({ ...ok, storeLat: '-23,1234567' }).errors.storeLat);
+  assert.ok(validateSettings({ ...ok, storeRadiusM: '49' }).errors.storeRadiusM);
+  assert.ok(validateSettings({ ...ok, storeRadiusM: '50001' }).errors.storeRadiusM);
+  assert.equal(validateSettings({ ...ok, storeRadiusM: '50' }).errors.storeRadiusM, undefined);
 });

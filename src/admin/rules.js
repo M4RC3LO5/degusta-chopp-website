@@ -34,7 +34,10 @@ export const RULES = {
     businessHours: { max: 80 },
     regions: { max: 160 },
     paymentInfo: { max: 120 },
-    instagram: /^[a-z0-9._]{1,30}$/
+    instagram: /^[a-z0-9._]{1,30}$/,
+    storeLat: { min: -90, max: 90 },
+    storeLng: { min: -180, max: 180 },
+    storeRadiusM: { min: 50, max: 50000 }
   },
   images: {
     bucket: 'catalog',
@@ -54,24 +57,36 @@ export const ROLE_LABELS = { dono: 'Dono', gerente: 'Gerente', operador: 'Operad
 
 // Descrição de cada perfil (espelha a tabela de permissões da Fase 1).
 export const ROLE_DESCRIPTIONS = {
-  dono: 'Acesso total: Preços, Catálogo, Configurações, Histórico e Usuários.',
-  gerente: 'Preços, Catálogo, Configurações e Histórico. Não gerencia usuários.',
-  operador: 'Só Preços e Catálogo. Sem Configurações, Histórico e Usuários.'
+  dono: 'Acesso total: Preços, Catálogo, Ponto, Configurações, Histórico e Usuários.',
+  gerente: 'Preços, Catálogo, Ponto (com espelho de todos), Configurações e Histórico. Não gerencia usuários.',
+  operador: 'Preços, Catálogo e o próprio Ponto. Sem Configurações, Histórico e Usuários.'
 };
 
 export const USERS_NOTICE = 'Mantenha pelo menos 2 usuários com perfil Dono.';
 
 // Rotas do admin (relativas a /admin) e quem pode acessar. Ordem = ordem da barra inferior.
+// `more: true` = vai para o menu "Mais" quando a barra tem 6+ itens. `hidden: true` = existe como rota, sem item na barra.
 export const ADMIN_ROUTES = [
   { path: 'precos', label: 'Preços', icon: 'tag', roles: ['dono', 'gerente', 'operador'] },
   { path: 'catalogo', label: 'Catálogo', icon: 'beer', roles: ['dono', 'gerente', 'operador'] },
-  { path: 'config', label: 'Config.', icon: 'settings', roles: ['dono', 'gerente'] },
-  { path: 'historico', label: 'Histórico', icon: 'history', roles: ['dono', 'gerente'] },
-  { path: 'usuarios', label: 'Usuários', icon: 'users', roles: ['dono'] }
+  { path: 'ponto', label: 'Ponto', icon: 'clock', roles: ['dono', 'gerente', 'operador'] },
+  { path: 'ponto/espelho', label: 'Espelho de ponto', icon: 'clock', roles: ['dono', 'gerente'], hidden: true },
+  { path: 'config', label: 'Config.', icon: 'settings', roles: ['dono', 'gerente'], more: true },
+  { path: 'historico', label: 'Histórico', icon: 'history', roles: ['dono', 'gerente'], more: true },
+  { path: 'usuarios', label: 'Usuários', icon: 'users', roles: ['dono'], more: true }
 ];
 
+export const NAV_MAX_ITEMS = 5;   // 6+ itens: os menos usados vão para "Mais"
+
 export function routesForRole(role) {
-  return ADMIN_ROUTES.filter(r => r.roles.includes(role));
+  return ADMIN_ROUTES.filter(r => !r.hidden && r.roles.includes(role));
+}
+
+// Barra inferior: { primary, more }. Até 5 itens ficam todos visíveis; com 6+ os `more` vão para "Mais".
+export function navLayout(role) {
+  const items = routesForRole(role);
+  if (items.length <= NAV_MAX_ITEMS) return { primary: items, more: [] };
+  return { primary: items.filter(r => !r.more), more: items.filter(r => r.more) };
 }
 
 export function canAccess(role, path) {

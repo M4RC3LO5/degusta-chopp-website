@@ -3,6 +3,7 @@ import { Download, Trash2 } from 'lucide-react';
 import { supabase } from '../../supabase';
 import Modal from '../../components/Modal';
 import { describeChange } from '../../historyDiff';
+import { buildTimeCsv, timeCsvFileName } from '../../timeTracking';
 import {
   buildCsv, closedMonths, confirmMatches, confirmWord, csvFileName, monthLabel, monthStartIso, nextMonthStartIso,
   periodLabel, purgeErrorMessage, scopeKey, scopeRows
@@ -11,17 +12,52 @@ import { inputClass } from '../catalog/fields';
 
 const FETCH_PAGE = 1000;   // limite padrão do PostgREST
 
-async function fetchMonthRows(month) {
+async function fetchAll(buildQuery) {
   const rows = [];
   for (let from = 0; ; from += FETCH_PAGE) {
-    const { data, error } = await supabase.from('audit_log').select('*')
-      .gte('changed_at', monthStartIso(month)).lt('changed_at', nextMonthStartIso(month))
-      .order('id', { ascending: true }).range(from, from + FETCH_PAGE - 1);
+    const { data, error } = await buildQuery().order('id', { ascending: true }).range(from, from + FETCH_PAGE - 1);
     if (error) throw error;
     rows.push(...data);
     if (data.length < FETCH_PAGE) return rows;
   }
 }
+
+// Histórico (Card 10) e Ponto (Card 11) usam o mesmo fluxo; só mudam as RPCs, a tabela e o CSV.
+const CONFIGS = {
+  audit: {
+    testSuffix: '',
+    title: 'Apagar histórico antigo',
+    monthsRpc: 'audit_months',
+    purgeRpc: 'purge_audit_month',
+    purgesTable: 'audit_purges',
+    intro: 'O Histórico é guardado por 12 meses, mas nada é apagado sozinho. Você pode apagar um mês fechado por vez, ou todos os meses fechados. O mês corrente nunca é apagado. Antes de apagar, o período é baixado em CSV.',
+    fileName: (scope) => csvFileName(scope),
+    fetchRows: (month) => fetchAll(() => supabase.from('audit_log').select('*')
+      .gte('changed_at', monthStartIso(month)).lt('changed_at', nextMonthStartIso(month))),
+    toCsv: (rows, ctx) => {
+      const describe = (row) => describeChange(row, ctx).lines;
+      const who = (row) => (row.changed_by ? (ctx.names.get(row.changed_by) || '—') : 'Sistema');
+      return buildCsv(rows, { describe, who });
+    }
+  },
+  time: {
+    testSuffix: '-time',
+    title: 'Apagar marcações de ponto antigas',
+    monthsRpc: 'time_months',
+    purgeRpc: 'purge_time_month',
+    purgesTable: 'time_purges',
+    intro: 'As marcações de ponto são guardadas por 12 meses, mas nada é apagado sozinho. Você pode apagar um mês fechado por vez, ou todos os meses fechados. O mês corrente nunca é apagado. Antes de apagar, o período é baixado em CSV. Recomendação: guarde os arquivos baixados por 5 anos.',
+    fileName: (scope) => timeCsvFileName(scope),
+    // Mês pelo horário efetivo (informado, no esquecimento; senão o registrado), como no banco.
+    fetchRows: (month) => {
+      const a = new Date(monthStartIso(month)).toISOString();
+      const b = new Date(nextMonthStartIso(month)).toISOString();
+      return fetchAll(() => supabase.from('time_entries').select('*')
+        .or(`and(claimed_at.gte.${a},claimed_at.lt.${b}),and(claimed_at.is.null,recorded_at.gte.${a},recorded_at.lt.${b})`));
+    },
+    toCsv: (rows, ctx) => buildTimeCsv(rows, (uid) => ctx.names.get(uid) || '—')
+  }
+};
 
 function saveFile(name, text) {
   const url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
@@ -33,7 +69,8 @@ function saveFile(name, text) {
 
 // Exclusão do Histórico por mês fechado (ou todos os fechados). Só o Dono vê este painel.
 // Fluxo: Baixar CSV (obrigatório, confere a contagem) -> digitar o mês/APAGAR -> Apagar (RPC purge_audit_month).
-export default function PurgePanel({ ctx, defaultOpen = false, onPurged }) {
+export default function PurgePanel({ ctx, kind = 'audit', defaultOpen = false, onPurged }) {
+  const cfg = CONFIGS[kind];
   const [open, setOpen] = useState(defaultOpen);
   const [months, setMonths] = useState([]);
   const [purges, setPurges] = useState([]);
@@ -50,15 +87,15 @@ export default function PurgePanel({ ctx, defaultOpen = false, onPurged }) {
 
   const load = useCallback(async () => {
     const [m, p] = await Promise.all([
-      supabase.rpc('audit_months'),
-      supabase.from('audit_purges').select('*').order('id', { ascending: false }).limit(10)
+      supabase.rpc(cfg.monthsRpc),
+      supabase.from(cfg.purgesTable).select('*').order('id', { ascending: false }).limit(10)
     ]);
     if (!mounted.current) return;
     if (m.error || p.error) { setLoadError('Não foi possível carregar os meses do histórico.'); return; }
     setLoadError('');
     setMonths(m.data.map(x => ({ ...x, row_count: Number(x.row_count) })));
     setPurges(p.data);
-  }, []);
+  }, [cfg]);
   useEffect(() => { if (open) load(); }, [open, load]);
 
   const closed = closedMonths(months);
@@ -72,14 +109,12 @@ export default function PurgePanel({ ctx, defaultOpen = false, onPurged }) {
     setDialogError('');
     try {
       const rows = [];
-      for (const m of scope.months) rows.push(...await fetchMonthRows(m.month));
+      for (const m of scope.months) rows.push(...await cfg.fetchRows(m.month));
       if (rows.length !== scopeRows(scope)) {
         setDialogError('O arquivo não bate com o número de registros do período. Baixe de novo.');
         return;
       }
-      const describe = (row) => describeChange(row, ctx).lines;
-      const who = (row) => (row.changed_by ? (ctx.names.get(row.changed_by) || '—') : 'Sistema');
-      saveFile(csvFileName(scope), buildCsv(rows, { describe, who }));
+      saveFile(cfg.fileName(scope), cfg.toCsv(rows, ctx));
       setDownloaded(key);
     } catch {
       setDialogError('Não foi possível baixar o período. Nada foi apagado.');
@@ -95,7 +130,7 @@ export default function PurgePanel({ ctx, defaultOpen = false, onPurged }) {
     let deleted = 0;
     const doneMonths = [];
     for (const m of scope.months) {
-      const { data, error } = await supabase.rpc('purge_audit_month', { p_month: m.month });
+      const { data, error } = await supabase.rpc(cfg.purgeRpc, { p_month: m.month });
       if (error) {
         setBusy(false);
         setDialogError(`${purgeErrorMessage(error)}${doneMonths.length ? ` Já apagados: ${doneMonths.join(', ')}.` : ''}`);
@@ -114,16 +149,14 @@ export default function PurgePanel({ ctx, defaultOpen = false, onPurged }) {
   };
 
   return (
-    <section className="rounded-2xl bg-[#142718] border border-emerald-900/60" data-testid="purge-panel">
+    <section className="rounded-2xl bg-[#142718] border border-emerald-900/60" data-testid={`purge-panel${cfg.testSuffix}`}>
       <button type="button" aria-expanded={open} onClick={() => setOpen(o => !o)} className="w-full min-h-[48px] px-4 flex items-center gap-2 text-left text-sm font-bold text-amber-300">
-        <Trash2 className="w-4 h-4" /> <span>Apagar histórico antigo</span>
+        <Trash2 className="w-4 h-4" /> <span>{cfg.title}</span>
       </button>
 
       {open && (
         <div className="px-4 pb-4 space-y-3">
-          <p className="text-xs text-emerald-200/80">
-            O Histórico é guardado por 12 meses, mas nada é apagado sozinho. Você pode apagar um mês fechado por vez, ou todos os meses fechados. O mês corrente nunca é apagado. Antes de apagar, o período é baixado em CSV.
-          </p>
+          <p className="text-xs text-emerald-200/80">{cfg.intro}</p>
           {loadError && <p role="alert" className="text-sm font-semibold text-rose-300">{loadError}</p>}
           {done && <p role="status" data-testid="purge-done" className="text-sm font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">{done}</p>}
 
@@ -173,7 +206,7 @@ export default function PurgePanel({ ctx, defaultOpen = false, onPurged }) {
               <button type="button" onClick={download} disabled={downloading || busy} data-testid="purge-download" className="w-full h-12 rounded-xl border border-amber-500/40 bg-[#0d1c10] text-sm font-bold text-amber-300 flex items-center justify-center gap-2 disabled:opacity-50">
                 <Download className="w-4 h-4" /> {downloading ? 'Baixando…' : downloaded === key ? 'Baixado. Baixar de novo' : 'Baixar CSV'}
               </button>
-              {downloaded === key && <p className="text-xs text-emerald-300" role="status">Arquivo baixado ({csvFileName(scope)}). Guarde-o em lugar seguro.</p>}
+              {downloaded === key && <p className="text-xs text-emerald-300" role="status">Arquivo baixado ({cfg.fileName(scope)}). Guarde-o em lugar seguro.</p>}
             </div>
 
             <div className="space-y-1">

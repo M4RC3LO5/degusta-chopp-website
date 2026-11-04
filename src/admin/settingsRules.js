@@ -28,6 +28,17 @@ export function storedToPhone(stored) {
   return maskPhone(String(stored ?? '').replace(/^55/, ''));
 }
 
+// Coordenada digitada ("-23,644057"): até 6 casas, dentro da faixa; null se inválida.
+export function parseCoord(input, min, max) {
+  const s = String(input ?? '').trim().replace(',', '.');
+  if (!/^-?\d{1,3}(\.\d{1,6})?$/.test(s)) return null;
+  const n = Number(s);
+  return n >= min && n <= max ? n : null;
+}
+
+// Coordenada para os campos de Config: 6 casas, vírgula decimal.
+export const fmtCoord = (n) => Number(n).toFixed(6).replace('.', ',');
+
 export function normalizeInstagram(input) {
   return String(input ?? '').trim().replace(/^@+/, '').toLowerCase();
 }
@@ -61,6 +72,16 @@ export function validateSettings(form) {
   const instagram = normalizeInstagram(form.instagram);
   if (instagram && !S.instagram.test(instagram)) errors.instagram = 'Use só letras minúsculas, números, ponto e _ (até 30), sem @.';
 
+  const lat = parseCoord(form.storeLat, S.storeLat.min, S.storeLat.max);
+  if (lat === null) errors.storeLat = 'Latitude entre -90 e 90, até 6 casas decimais. Ex.: -23,644057.';
+  const lng = parseCoord(form.storeLng, S.storeLng.min, S.storeLng.max);
+  if (lng === null) errors.storeLng = 'Longitude entre -180 e 180, até 6 casas decimais. Ex.: -46,494256.';
+  const radiusRaw = String(form.storeRadiusM ?? '').trim();
+  const radius = Number(radiusRaw);
+  if (!/^\d+$/.test(radiusRaw) || radius < S.storeRadiusM.min || radius > S.storeRadiusM.max) {
+    errors.storeRadiusM = `Use um número inteiro de ${S.storeRadiusM.min} a ${S.storeRadiusM.max} metros.`;
+  }
+
   return {
     errors,
     values: {
@@ -69,7 +90,10 @@ export function validateSettings(form) {
       business_hours: hours,
       regions,
       payment_info: payment,
-      instagram: instagram || null
+      instagram: instagram || null,
+      store_lat: lat,
+      store_lng: lng,
+      store_radius_m: radius
     }
   };
 }
@@ -81,7 +105,10 @@ export function settingsToForm(row) {
     businessHours: row.business_hours,
     regions: row.regions,
     paymentInfo: row.payment_info,
-    instagram: row.instagram || ''
+    instagram: row.instagram || '',
+    storeLat: String(row.store_lat ?? '').replace('.', ','),
+    storeLng: String(row.store_lng ?? '').replace('.', ','),
+    storeRadiusM: String(row.store_radius_m ?? '')
   };
 }
 

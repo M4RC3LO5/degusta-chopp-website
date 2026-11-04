@@ -1,15 +1,31 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Tag, Beer, Settings, History, Users, LogOut } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Tag, Beer, Settings, History, Users, Clock, MoreHorizontal, LogOut } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
-import { ROLE_LABELS, routesForRole } from '../rules';
+import { ROLE_LABELS, navLayout } from '../rules';
 import RetentionNotice from './RetentionNotice';
 
-const ICONS = { tag: Tag, beer: Beer, settings: Settings, history: History, users: Users };
+const ICONS = { tag: Tag, beer: Beer, settings: Settings, history: History, users: Users, clock: Clock };
+
+const tabClass = (isActive) =>
+  `h-16 min-h-[44px] w-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors ${
+    isActive ? 'text-amber-400' : 'text-emerald-200/70 hover:text-amber-300'
+  }`;
 
 export default function AdminLayout({ children }) {
   const { profile, signOut } = useAuth();
-  const items = routesForRole(profile.role);
+  const { primary, more } = navLayout(profile.role);
+  const location = useLocation();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreActive = more.some(r => location.pathname === `/${r.path}` || location.pathname.startsWith(`/${r.path}/`));
+
+  useEffect(() => { setMoreOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    if (!moreOpen) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setMoreOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [moreOpen]);
 
   return (
     <div className="min-h-screen bg-[#0a160d] text-slate-100 flex flex-col">
@@ -37,26 +53,43 @@ export default function AdminLayout({ children }) {
 
       <main className="flex-1 w-full max-w-3xl lg:max-w-5xl mx-auto px-4 py-6 pb-28">{children}</main>
 
+      {moreOpen && <div className="fixed inset-0 z-40" onClick={() => setMoreOpen(false)} aria-hidden="true" />}
       <nav aria-label="Navegação do admin" className="fixed bottom-0 inset-x-0 z-40 bg-[#0d1c10]/95 backdrop-blur border-t border-[#1b321f] pb-[env(safe-area-inset-bottom)]">
+        {moreOpen && (
+          <ul id="admin-more-menu" data-testid="nav-more-menu" className="absolute bottom-full right-2 mb-2 w-52 rounded-2xl bg-[#142718] border border-amber-500/30 shadow-neu-gold overflow-hidden">
+            {more.map(({ path, label, icon }) => {
+              const Icon = ICONS[icon];
+              return (
+                <li key={path}>
+                  <NavLink to={`/${path}`} className={({ isActive }) => `min-h-[48px] px-4 flex items-center gap-3 text-sm font-bold ${isActive ? 'text-amber-400' : 'text-emerald-100/90 hover:text-amber-300'}`}>
+                    <Icon className="w-5 h-5" />
+                    <span>{label}</span>
+                  </NavLink>
+                </li>
+              );
+            })}
+          </ul>
+        )}
         <ul className="max-w-3xl lg:max-w-5xl mx-auto flex">
-          {items.map(({ path, label, icon }) => {
+          {primary.map(({ path, label, icon }) => {
             const Icon = ICONS[icon];
             return (
               <li key={path} className="flex-1">
-                <NavLink
-                  to={`/${path}`}
-                  className={({ isActive }) =>
-                    `h-16 min-h-[44px] flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors ${
-                      isActive ? 'text-amber-400' : 'text-emerald-200/70 hover:text-amber-300'
-                    }`
-                  }
-                >
+                <NavLink to={`/${path}`} className={({ isActive }) => tabClass(isActive)}>
                   <Icon className="w-5 h-5" />
                   <span>{label}</span>
                 </NavLink>
               </li>
             );
           })}
+          {more.length > 0 && (
+            <li className="flex-1">
+              <button type="button" aria-haspopup="true" aria-expanded={moreOpen} aria-controls="admin-more-menu" data-testid="nav-more" onClick={() => setMoreOpen(o => !o)} className={tabClass(moreActive || moreOpen)}>
+                <MoreHorizontal className="w-5 h-5" />
+                <span>Mais</span>
+              </button>
+            </li>
+          )}
         </ul>
       </nav>
     </div>

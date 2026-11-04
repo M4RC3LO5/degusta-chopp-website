@@ -73,3 +73,12 @@ export function purgeErrorMessage(error) {
   if (error?.code === 'P0002') return 'Esse mês não tem registros.';
   return 'Não foi possível apagar agora. Nada foi alterado neste passo; tente de novo.';
 }
+
+// Aviso único do Dono no login (Histórico e/ou Ponto). items = [{ label: 'Histórico' | 'Ponto', from: 'MM/AAAA', to: 'MM/AAAA' }].
+export function retentionMessage(items) {
+  const range = (i) => `de ${i.from} a ${i.to}`;
+  if (items.length === 1) return `Há registros ${items[0].label === 'Ponto' ? 'do Ponto' : 'do Histórico'} com mais de 12 meses (${range(items[0])}). Deseja apagar?`;
+  return `Há registros com mais de 12 meses: ${items.map(i => `${i.label} (${range(i)})`).join(' e ')}. Deseja apagar?`;
+}
+
+export const KEEP_FILES_NOTE = 'Guarde os arquivos baixados por 5 anos.';

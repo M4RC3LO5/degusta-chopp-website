@@ -1,0 +1,41 @@
+{"t":"A1 na loja","acc":8.4,"src":"app","dist":0,"within":true,"recorded_is_now":true}
+{"t":"A2 100m N (esperado 100, dentro)","dist":100,"within":true}
+{"t":"A3 1km N (esperado 1001, fora)","dist":1001,"within":false}
+{"t":"A4 sem localização","lat":null,"dist":null,"within":null}
+{"t":"A5 Sé (esperado 17577, fora)","dist":17577,"within":false}
+{"t":"B1 entrada duas vezes","msg":"Essa marcação não vem depois da anterior. Se você esqueceu alguma, use \"Lancei esquecimento\".","code":"55000"}
+{"t":"B2 fim sem início","code":"55000"}
+{"t":"B3 entrada -> saída direta (válido)","kind":"saida"}
+{"t":"B4 saída duas vezes","code":"55000"}
+{"t":"B5 lat inválida","code":"22023"}
+{"t":"D1 operador vê só as próprias","rows":6,"others":0}
+{"t":"D2 insert direto","code":"42501"}
+{"t":"D3 update direto","code":"42501"}
+{"t":"D4 delete direto","code":"42501"}
+{"t":"D5 truncate","code":"42501"}
+{"t":"D6 delete time_purges","code":"42501"}
+{"t":"D7 operador purge","code":"42501"}
+{"t":"D8 operador time_months","code":"42501"}
+{"t":"D9 operador lê time_purges","rows":0}
+{"t":"E1 gerente vê todas","rows":7,"users":2}
+{"t":"E2 gerente purge","code":"42501"}
+{"t":"E3 gerente time_months","months":1}
+{"t":"C1 8 dias atrás","msg":"Só é possível lançar esquecimento dos últimos 7 dias.","code":"22023"}
+{"t":"C2 futuro","msg":"O horário não pode estar no futuro.","code":"22023"}
+{"t":"C3 motivo 121","code":"22023"}
+{"t":"C4 motivo curto","code":"22023"}
+{"t":"C5 válido (3 dias atrás, 08h)","lat":null,"reason":"Esqueci de marcar","source":"esquecimento","within":null,"recorded_is_now":true,"claimed_lt_recorded":true}
+{"t":"C6 mesmo horário","code":"55000"}
+{"t":"C7 saída depois da entrada lançada","kind":"saida"}
+{"t":"C8 início de intervalo depois de saída","code":"55000"}
+{"t":"C9 entrada de 2 dias atrás (dia fica em aberto)","kind":"entrada"}
+{"t":"C10 saída de hoje com dia anterior aberto","msg":"Falta a saída do dia anterior. Marque a Entrada de hoje ou use \"Lancei esquecimento\".","code":"55000"}
+{"t":"C11 entrada de hoje com dia anterior aberto (permitida)","kind":"entrada"}
+{"t":"C12 saída esquecida de anteontem (havendo marca de hoje)","kind":"saida"}
+{"t":"C13 saída seguida de saída","code":"55000"}
+{"t":"C14a dia inteiro esquecido (entrada)","kind":"entrada"}
+{"t":"C14b dia inteiro esquecido (saída)","kind":"saida"}
+{"t":"F1 dono purge mês corrente","code":"22023"}
+{"t":"F2 dono purge futuro","code":"22023"}
+{"t":"G1 anon registrar","code":"42501"}
+{"t":"G2 anon select","code":"42501"}

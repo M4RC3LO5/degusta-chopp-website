@@ -58,7 +58,10 @@ function fieldDefs(table) {
       business_hours: { label: 'Horário de atendimento', fmt: quote },
       regions: { label: 'Regiões atendidas', fmt: quote },
       payment_info: { label: 'Formas de pagamento', fmt: quote },
-      instagram: { label: 'Instagram', fmt: (v) => (v ? `@${v}` : 'vazio') }
+      instagram: { label: 'Instagram', fmt: (v) => (v ? `@${v}` : 'vazio') },
+      store_lat: { label: 'Latitude da loja (ponto)', fmt: (v) => String(v).replace('.', ',') },
+      store_lng: { label: 'Longitude da loja (ponto)', fmt: (v) => String(v).replace('.', ',') },
+      store_radius_m: { label: 'Raio do ponto', fmt: (v) => `${v} m` }
     },
     profiles: {
       full_name: { label: 'Nome', fmt: quote },
