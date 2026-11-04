@@ -1,9 +1,44 @@
 import React, { useState } from 'react';
 import { Beer, MessageCircle, Filter, Info, Sparkles } from 'lucide-react';
-import { BRANDS, TYPES, PRICES, getPrice, formatPrice } from '../data/products';
+import { getPrice, isOffered, formatPrice } from '../data/products';
+import { useCatalog } from '../data/CatalogContext';
+import { applyImageFallback } from '../utils/imageFallback';
+
+// Skeleton com a mesma estrutura/altura dos cards reais (evita layout shift)
+function CatalogSkeleton() {
+  return (
+    <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-6xl mx-auto items-stretch" aria-busy="true" aria-label="Carregando catálogo">
+      {[0, 1, 2, 3, 4].map(i => (
+        <div key={i} className="w-full md:w-[calc(50%-1rem)] min-h-[640px] md:min-h-[695px] rounded-3xl bg-[#142718] border border-amber-500/10 p-6 lg:p-8 animate-pulse flex flex-col gap-5">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#0d1c10]" />
+            <div className="flex-1 space-y-2">
+              <div className="h-6 w-2/3 rounded bg-[#0d1c10]" />
+              <div className="h-3 w-1/3 rounded bg-[#0d1c10]" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-3 w-full rounded bg-[#0d1c10]" />
+            <div className="h-3 w-5/6 rounded bg-[#0d1c10]" />
+          </div>
+          <div className="flex-1 min-h-[250px] rounded-2xl bg-[#0d1c10]" />
+          <div className="h-11 rounded-xl bg-[#0d1c10]" />
+          <div className="h-12 rounded-xl bg-[#0d1c10]" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Catalog({ onOpenWhatsApp, onSelectType }) {
+  const { BRANDS, TYPES, PRICES, pricesAvailable, loading } = useCatalog();
   const [selectedBrandFilter, setSelectedBrandFilter] = useState('todos');
+
+  // Modo sem preços: "Consultar". Preço ausente com preços ativos: "—".
+  const priceLabel = (value) => {
+    if (!pricesAvailable) return 'Consultar';
+    return value === null ? '—' : formatPrice(value);
+  };
 
   const filterOptions = [
     { id: 'todos', name: 'Todas as Marcas' },
@@ -39,7 +74,11 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
               <Filter className="w-3.5 h-3.5" /> Filtrar Marca:
             </span>
             
-            {filterOptions.map((brand) => (
+            {loading && [0, 1, 2, 3].map(i => (
+              <span key={i} className="h-8 w-24 rounded-xl bg-[#142718] animate-pulse" />
+            ))}
+
+            {!loading && filterOptions.map((brand) => (
               <button
                 key={brand.id}
                 onClick={() => setSelectedBrandFilter(brand.id)}
@@ -56,14 +95,15 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
         </div>
 
         {/* 1. GRID: 1 col on mobile, 2 on md with centering for orphans */}
+        {loading ? <CatalogSkeleton /> : (
         <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-6xl mx-auto items-stretch">
           {TYPES.filter(type => {
             if (selectedBrandFilter === 'todos') return true;
-            return PRICES[type.id]?.[selectedBrandFilter]?.available;
+            return isOffered(PRICES, type.id, selectedBrandFilter);
           }).map((type) => {
-            const displayedBrands = selectedBrandFilter === 'todos'
-              ? BRANDS
-              : BRANDS.filter(b => b.id === selectedBrandFilter);
+            const displayedBrands = BRANDS.filter(b =>
+              (selectedBrandFilter === 'todos' || b.id === selectedBrandFilter) && isOffered(PRICES, type.id, b.id)
+            );
 
             return (
               <div
@@ -93,9 +133,11 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
                       </div>
 
                       {/* Compact Badge */}
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase whitespace-nowrap border shrink-0 tracking-wide mt-1 ${type.badgeColor}`}>
-                        {type.badge}
-                      </span>
+                      {type.badge && (
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase whitespace-nowrap border shrink-0 tracking-wide mt-1 ${type.badgeColor}`}>
+                          {type.badge}
+                        </span>
+                      )}
                     </div>
 
                     {/* Description Paragraph */}
@@ -122,8 +164,8 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
                         </p>
                       ) : (
                         displayedBrands.map((brand) => {
-                          const price30 = getPrice(type.id, brand.id, 30);
-                          const price50 = getPrice(type.id, brand.id, 50);
+                          const price30 = getPrice(type.id, brand.id, 30, PRICES);
+                          const price50 = getPrice(type.id, brand.id, 50, PRICES);
                           const subtitle = PRICES[type.id]?.[brand.id]?.subtitle || '';
 
                           return (
@@ -139,6 +181,7 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
                                   className="w-8 h-8 md:w-14 md:h-14 object-contain rounded-md bg-white/5 p-1 shrink-0 self-start mt-0.5 md:mt-0 md:self-center"
                                   loading="lazy"
                                   onError={(e) => {
+                                    if (applyImageFallback(e, brand.fallbackLogo)) return;
                                     e.currentTarget.style.display = 'none';
                                     if (e.currentTarget.nextElementSibling) {
                                       e.currentTarget.nextElementSibling.classList.remove('hidden');
@@ -160,14 +203,14 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
                               {/* Price 30L */}
                               <div className="flex items-center justify-center h-full">
                                 <span className="border border-emerald-700/50 rounded-md py-1 px-0.5 md:py-2 md:px-2 text-center text-amber-400 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-[11px] md:text-sm lg:text-base xl:text-sm 2xl:text-base whitespace-nowrap min-h-[36px] md:min-h-[44px] shadow-sm">
-                                  {formatPrice(price30)}
+                                  {priceLabel(price30)}
                                 </span>
                               </div>
 
                               {/* Price 50L */}
                               <div className="flex items-center justify-center h-full">
                                 <span className="border border-emerald-700/50 rounded-md py-1 px-0.5 md:py-2 md:px-2 text-center text-yellow-300 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-[11px] md:text-sm lg:text-base xl:text-sm 2xl:text-base whitespace-nowrap min-h-[36px] md:min-h-[44px] shadow-sm">
-                                  {formatPrice(price50)}
+                                  {priceLabel(price50)}
                                 </span>
                               </div>
                             </div>
@@ -205,6 +248,7 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
             );
           })}
         </div>
+        )}
 
         {/* Free dispenser alert callout under catalog */}
         <div className="mt-10 sm:mt-14 text-center bg-[#142718] p-5 sm:p-6 rounded-2xl border border-amber-500/30 shadow-neu-flat max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">

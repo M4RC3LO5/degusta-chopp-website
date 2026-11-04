@@ -108,11 +108,21 @@ export function formatPrice(value) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-export function getPrice(typeId, brandId, size) {
-  const typePrices = PRICES[typeId];
+// `prices` é opcional: por padrão usa o PRICES estático (fallback); os componentes passam o do catálogo carregado.
+// Convenção: chave de tamanho AUSENTE = não oferecido; valor null = oferecido, preço a consultar (modo fallback).
+export function getPrice(typeId, brandId, size, prices = PRICES) {
+  const typePrices = prices?.[typeId];
   if (!typePrices) return null;
   const brandPrice = typePrices[brandId];
   if (!brandPrice || !brandPrice.available) return null;
   const val = brandPrice[size];
   return typeof val === 'number' ? val : null;
+}
+
+// Combinação sabor x marca (e, opcionalmente, tamanho) oferecida, com ou sem preço conhecido.
+export function isOffered(prices, typeId, brandId, size) {
+  const entry = prices?.[typeId]?.[brandId];
+  if (!entry || !entry.available) return false;
+  if (size === undefined || size === null) return 30 in entry || 50 in entry;
+  return size in entry;
 }
