@@ -161,7 +161,7 @@ export default function PricesPage() {
                   type="button"
                   aria-expanded={open}
                   onClick={() => setOpenId(open ? null : flavor.id)}
-                  className="w-full min-h-[56px] flex items-center gap-3 px-4 text-left md:cursor-default"
+                  className="w-full min-h-[56px] flex items-center gap-3 px-4 text-left lg:cursor-default"
                 >
                   <img
                     src={flavorImageUrl(flavor)}
@@ -177,12 +177,12 @@ export default function PricesPage() {
                       {!flavor.active ? 'Sabor desativado (fora do site)' : visibleCount === 0 ? 'Sem ofertas ativas (fora do site)' : `${visibleCount} ${visibleCount === 1 ? 'oferta ativa' : 'ofertas ativas'}`}
                     </span>
                   </span>
-                  <ChevronDown className={`md:hidden w-5 h-5 text-amber-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`lg:hidden w-5 h-5 text-amber-400 transition-transform ${open ? 'rotate-180' : ''}`} />
                 </button>
               </h2>
 
-              <div className={`${open ? 'block' : 'hidden'} md:block px-4 pb-3`}>
-                <div className={`hidden md:grid ${GRID_COLS.replace('md:grid ', '')} pb-2 border-b border-emerald-900/50 text-[11px] font-bold uppercase tracking-wider text-amber-400`}>
+              <div className={`${open ? 'block' : 'hidden'} lg:block px-4 pb-3`}>
+                <div className={`hidden lg:grid ${GRID_COLS.replace('lg:grid ', '')} pb-2 border-b border-emerald-900/50 text-[11px] font-bold uppercase tracking-wider text-amber-400`}>
                   <span>Marca</span><span>Subtítulo</span><span className="text-right pr-1">Barril 30L</span><span className="text-right pr-1">Barril 50L</span><span>Ativa</span><span />
                 </div>
 
@@ -224,7 +224,7 @@ export default function PricesPage() {
                           id={`add-${flavor.slug}`}
                           value={addingBrandId}
                           onChange={(e) => setAdding(a => ({ ...a, [flavor.id]: e.target.value }))}
-                          className="w-full md:w-60 h-11 px-3 rounded-xl bg-[#0d1c10] border border-emerald-900/60 text-slate-100"
+                          className="w-full lg:w-60 h-11 px-3 rounded-xl bg-[#0d1c10] border border-emerald-900/60 text-slate-100"
                         >
                           {missing.map(b => <option key={b.id} value={b.id}>{b.name}{b.active ? '' : ' (desativada)'}</option>)}
                         </select>

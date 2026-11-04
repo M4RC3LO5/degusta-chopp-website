@@ -5,7 +5,7 @@ import { bigVariations, isDirty, priceToText, validateOffer, variationMessage } 
 import { RULES } from '../../rules';
 
 // Colunas da tabela no desktop (md+): marca | subtítulo | 30L | 50L | ativa | salvar
-export const GRID_COLS = 'md:grid md:grid-cols-[190px_minmax(0,1fr)_150px_150px_100px_112px] md:gap-x-3 md:gap-y-1 md:items-start';
+export const GRID_COLS = 'lg:grid lg:grid-cols-[170px_minmax(160px,1fr)_140px_140px_100px_104px] lg:gap-x-3 lg:gap-y-1 lg:items-start';
 
 const EMPTY = { subtitle: null, price_30: null, price_50: null, active: true };
 
@@ -56,10 +56,10 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
   const hidden = offer && (!offer.active || !brand.active || !flavor.active);
 
   return (
-    <div data-testid={`offer-${id}`} className={`${GRID_COLS} py-4 md:py-3 space-y-3 md:space-y-0`}>
-      {/* Marca + ativa (mobile: mesma linha; md: vira duas células da grid) */}
-      <div className="flex items-center justify-between gap-3 md:contents">
-        <div className="flex items-center gap-3 min-w-0 md:col-start-1 md:row-start-1 md:h-11">
+    <div data-testid={`offer-${id}`} className={`${GRID_COLS} py-4 lg:py-3 space-y-3 lg:space-y-0`}>
+      {/* Marca + ativa (mobile: mesma linha; lg: vira duas células da grid) */}
+      <div className="flex items-center justify-between gap-3 lg:contents">
+        <div className="flex items-center gap-3 min-w-0 lg:col-start-1 lg:row-start-1 lg:h-11">
           <img
             src={logoUrl}
             alt=""
@@ -81,7 +81,7 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
           aria-checked={draft.active}
           aria-label={`Oferta ${brand.name} ativa`}
           onClick={() => set({ active: !draft.active })}
-          className="min-h-[44px] flex items-center gap-2 md:col-start-5 md:row-start-1"
+          className="min-h-[44px] flex items-center gap-2 lg:col-start-5 lg:row-start-1"
         >
           <span className={`relative inline-block w-12 h-7 rounded-full transition-colors ${draft.active ? 'bg-emerald-500' : 'bg-slate-600'}`}>
             <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-all ${draft.active ? 'left-[22px]' : 'left-0.5'}`} />
@@ -91,8 +91,8 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
       </div>
 
       {/* Subtítulo */}
-      <div className="md:col-start-2 md:row-start-1 min-w-0">
-        <label htmlFor={`${id}-sub`} className="block text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1 md:sr-only">Subtítulo</label>
+      <div className="lg:col-start-2 lg:row-start-1 min-w-0">
+        <label htmlFor={`${id}-sub`} className="block text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1 lg:sr-only">Subtítulo</label>
         <input
           id={`${id}-sub`}
           type="text"
@@ -107,18 +107,18 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
       </div>
 
       {/* Preços */}
-      <div className="grid grid-cols-2 gap-3 md:contents">
-        <div className="md:col-start-3 md:row-start-1">
+      <div className="grid grid-cols-2 gap-3 lg:contents">
+        <div className="lg:col-start-3 lg:row-start-1">
           <PriceInput id={`${id}-p30`} label="Barril 30L" value={draft.text30} onChange={(v) => set({ text30: v })} error={errors.p30} />
         </div>
-        <div className="md:col-start-4 md:row-start-1">
+        <div className="lg:col-start-4 lg:row-start-1">
           <PriceInput id={`${id}-p50`} label="Barril 50L" value={draft.text50} onChange={(v) => set({ text50: v })} error={errors.p50} />
         </div>
       </div>
-      {errors.prices && <p role="alert" className="text-xs font-semibold text-rose-300 md:col-span-full md:row-start-2">{errors.prices}</p>}
+      {errors.prices && <p role="alert" className="text-xs font-semibold text-rose-300 lg:col-span-full lg:row-start-2">{errors.prices}</p>}
 
       {/* Salvar (por linha) */}
-      <div className="flex gap-2 md:col-start-6 md:row-start-1">
+      <div className="flex gap-2 lg:col-start-6 lg:row-start-1">
         {!offer && (
           <button type="button" onClick={onCancelNew} disabled={busy} className="min-h-[44px] px-3 rounded-xl border border-emerald-900/60 bg-[#0d1c10] text-xs font-bold text-emerald-200 disabled:opacity-50">Cancelar</button>
         )}
@@ -126,13 +126,13 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
           type="button"
           onClick={save}
           disabled={busy || hasErrors || !dirty}
-          className="min-h-[44px] flex-1 md:flex-none md:min-w-[96px] px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black uppercase tracking-wide disabled:opacity-40"
+          className="min-h-[44px] flex-1 lg:flex-none lg:min-w-[96px] px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black uppercase tracking-wide disabled:opacity-40"
         >
           {busy ? 'Salvando…' : 'Salvar'}
         </button>
       </div>
 
-      {serverError && <p role="alert" className="text-sm font-semibold text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 md:col-span-full md:row-start-3">{serverError}</p>}
+      {serverError && <p role="alert" className="text-sm font-semibold text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 lg:col-span-full lg:row-start-3">{serverError}</p>}
 
       {confirm && (
         <ConfirmDialog

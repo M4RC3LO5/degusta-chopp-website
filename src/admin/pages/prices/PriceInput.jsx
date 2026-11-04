@@ -6,7 +6,7 @@ export default function PriceInput({ id, label, value, onChange, error, disabled
   const errorId = `${id}-error`;
   return (
     <div className="min-w-0">
-      <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1 md:sr-only">{label}</label>
+      <label htmlFor={id} className="block text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1 lg:sr-only">{label}</label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-emerald-300 pointer-events-none">R$</span>
         <input
