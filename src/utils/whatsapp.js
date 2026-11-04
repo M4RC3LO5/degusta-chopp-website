@@ -1,6 +1,25 @@
-import { TYPES, BRANDS, getPrice, formatPrice, PROMO_MIN_LITERS } from '../data/products.js';
+import {
+  TYPES as STATIC_TYPES,
+  BRANDS as STATIC_BRANDS,
+  PRICES as STATIC_PRICES,
+  PROMO_MIN_LITERS as STATIC_PROMO_MIN_LITERS,
+  getPrice,
+  isOffered,
+  formatPrice
+} from '../data/products.js';
 
-export function buildWhatsAppMessage(items) {
+// `catalog` vem do CatalogContext. Sem ele (scripts/testes) usa o products.js estático, com preços.
+const STATIC_CATALOG = {
+  TYPES: STATIC_TYPES,
+  BRANDS: STATIC_BRANDS,
+  PRICES: STATIC_PRICES,
+  PROMO_MIN_LITERS: STATIC_PROMO_MIN_LITERS,
+  pricesAvailable: true,
+  whatsapp: '5511991069099'
+};
+
+export function buildWhatsAppMessage(items, catalog = STATIC_CATALOG) {
+  const { TYPES, BRANDS, PRICES, PROMO_MIN_LITERS, pricesAvailable } = catalog;
   if (!Array.isArray(items) || items.length === 0) {
     return '';
   }
@@ -16,23 +35,33 @@ export function buildWhatsAppMessage(items) {
 
     const type = TYPES.find(t => t.id === typeId);
     const brand = BRANDS.find(b => b.id === brandId);
-    const unitPrice = getPrice(typeId, brandId, size);
+    const unitPrice = getPrice(typeId, brandId, size, PRICES);
 
-    if (!type || !brand || unitPrice === null || unitPrice === undefined) {
+    if (!type || !brand || !isOffered(PRICES, typeId, brandId, size)) {
+      continue;
+    }
+    // Com preços disponíveis, oferta sem valor numérico não entra na mensagem.
+    if (pricesAvailable && unitPrice === null) {
       continue;
     }
 
     const itemQty = Number(qty) || 1;
-    const lineSubtotal = unitPrice * itemQty;
     const lineLiters = size * itemQty;
 
-    totalPrice += lineSubtotal;
     totalLiters += lineLiters;
     itemCounter += 1;
 
-    validItemLines.push(
-      `*${itemCounter}.* ${type.name} — ${brand.name}\n    ${itemQty}x barril de ${size}L ....... ${formatPrice(lineSubtotal)}`
-    );
+    if (pricesAvailable) {
+      const lineSubtotal = unitPrice * itemQty;
+      totalPrice += lineSubtotal;
+      validItemLines.push(
+        `*${itemCounter}.* ${type.name} — ${brand.name}\n    ${itemQty}x barril de ${size}L ....... ${formatPrice(lineSubtotal)}`
+      );
+    } else {
+      validItemLines.push(
+        `*${itemCounter}.* ${type.name} — ${brand.name}\n    ${itemQty}x barril de ${size}L`
+      );
+    }
   }
 
   if (validItemLines.length === 0) {
@@ -40,6 +69,7 @@ export function buildWhatsAppMessage(items) {
   }
 
   const itemsFormatted = validItemLines.join('\n\n');
+  const valueLine = pricesAvailable ? formatPrice(totalPrice) : 'Valores a confirmar';
   const promoLine = totalLiters >= PROMO_MIN_LITERS
     ? '✅ *Chopeira inclusa (cortesia)*'
     : 'Locação de chopeira: a combinar';
@@ -51,7 +81,7 @@ ${itemsFormatted}
 
 ━━━━━━━━━━━━━━━━━━
 *Total:* ${totalLiters} litros
-*Valor:* ${formatPrice(totalPrice)}
+*Valor:* ${valueLine}
 ${promoLine}
 ━━━━━━━━━━━━━━━━━━
 
@@ -66,7 +96,8 @@ export const WHATSAPP_SIGNATURE = '\n\n---\n_Enviado pelo site degustachopp_';
 const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {};
 export const WHATSAPP_NUMBER = env.VITE_WHATSAPP_NUMBER || '5511991069099';
 
-export function buildWhatsAppUrl(items) {
-  const message = buildWhatsAppMessage(items);
-  return `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`;
+export function buildWhatsAppUrl(items, catalog = STATIC_CATALOG) {
+  const message = buildWhatsAppMessage(items, catalog);
+  const phone = catalog.whatsapp || WHATSAPP_NUMBER;
+  return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
 }

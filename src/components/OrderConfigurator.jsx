@@ -2,18 +2,44 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Plus, Minus, Trash2, Calculator, MessageCircle, Sparkles, ShoppingCart, X } from 'lucide-react';
 import {
-  BRANDS,
-  TYPES,
-  SIZES,
-  PRICES,
   getPrice,
+  isOffered,
   formatPrice,
-  PROMO_MIN_LITERS,
   MAX_QTY_PER_ITEM
 } from '../data/products';
+import { useCatalog } from '../data/CatalogContext';
 import { buildWhatsAppUrl } from '../utils/whatsapp';
+import { applyImageFallback } from '../utils/imageFallback';
 
-export default function OrderConfigurator({ onOpenCalculator, preSelectedType, onClearPreSelectedType }) {
+// Skeleton do configurador (mesmo contêiner do real, sem layout shift)
+function ConfiguratorSkeleton() {
+  return (
+    <div id="configurador" aria-busy="true" aria-label="Carregando configurador" className="scroll-mt-24 lg:scroll-mt-28 w-full max-w-xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#142718] border border-amber-500/30 shadow-neu-gold min-h-[560px] lg:min-h-[655px] animate-pulse space-y-6">
+      <div className="h-5 w-1/2 rounded bg-[#0d1c10]" />
+      <div className="grid grid-cols-5 gap-2">
+        {[0, 1, 2, 3, 4].map(i => <div key={i} className="h-[96px] rounded-2xl bg-[#0d1c10]" />)}
+      </div>
+      <div className="grid grid-cols-3 gap-2.5">
+        {[0, 1, 2].map(i => <div key={i} className="h-[84px] rounded-2xl bg-[#0d1c10]" />)}
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {[0, 1].map(i => <div key={i} className="h-[68px] rounded-2xl bg-[#0d1c10]" />)}
+      </div>
+      <div className="h-11 rounded-xl bg-[#0d1c10]" />
+    </div>
+  );
+}
+
+export default function OrderConfigurator(props) {
+  const { loading } = useCatalog();
+  if (loading) return <ConfiguratorSkeleton />;
+  return <OrderConfiguratorInner {...props} />;
+}
+
+function OrderConfiguratorInner({ onOpenCalculator, preSelectedType, onClearPreSelectedType }) {
+  const catalog = useCatalog();
+  const { BRANDS, TYPES, SIZES, PRICES, PROMO_MIN_LITERS, pricesAvailable } = catalog;
+
   // Budget items list (hydrated from localStorage)
   const [items, setItems] = useState(() => {
     try {
@@ -25,8 +51,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
         if (!item || !item.id || typeof item.qty !== 'number' || item.qty < 1 || item.qty > MAX_QTY_PER_ITEM) {
           return false;
         }
-        const unitPrice = getPrice(item.typeId, item.brandId, item.size);
-        return unitPrice !== null && unitPrice !== undefined;
+        return isOffered(PRICES, item.typeId, item.brandId, item.size);
       });
     } catch (err) {
       return [];
@@ -107,7 +132,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
       let nextSize = prev.size;
 
       // If brand was selected, check if combination is still valid
-      if (nextBrandId && getPrice(typeId, nextBrandId, 30) === null) {
+      if (nextBrandId && !isOffered(PRICES, typeId, nextBrandId)) {
         nextBrandId = null;
         nextSize = null;
       }
@@ -126,7 +151,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
     setDraft(prev => {
       let nextSize = prev.size;
       if (prev.typeId && nextSize) {
-        if (getPrice(prev.typeId, brandId, nextSize) === null) {
+        if (!isOffered(PRICES, prev.typeId, brandId, nextSize)) {
           nextSize = null;
         }
       }
@@ -222,7 +247,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
   // Calculations for totals
   const totalLiters = items.reduce((acc, it) => acc + (it.size * it.qty), 0);
   const totalPrice = items.reduce((acc, it) => {
-    const price = getPrice(it.typeId, it.brandId, it.size) || 0;
+    const price = getPrice(it.typeId, it.brandId, it.size, PRICES) || 0;
     return acc + (price * it.qty);
   }, 0);
 
@@ -261,9 +286,10 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
   };
 
   // Calculate minimum 30L price for selected type
-  const minPrice30ForType = draft.typeId
-    ? Math.min(...BRANDS.map(b => getPrice(draft.typeId, b.id, 30)).filter(p => p !== null))
-    : null;
+  const prices30ForType = draft.typeId && pricesAvailable
+    ? BRANDS.map(b => getPrice(draft.typeId, b.id, 30, PRICES)).filter(p => p !== null)
+    : [];
+  const minPrice30ForType = prices30ForType.length > 0 ? Math.min(...prices30ForType) : null;
 
   return (
     <div id="configurador" className="scroll-mt-24 lg:scroll-mt-28 w-full max-w-xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#142718] border border-amber-500/30 shadow-neu-gold text-slate-100">
@@ -341,6 +367,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
                       height={40}
                       loading="lazy"
                       className="object-contain max-h-10 group-hover:scale-110 transition-transform"
+                      onError={(e) => { applyImageFallback(e, type.fallbackImage); }}
                     />
                   </div>
                   <span className="text-[11px] font-bold text-slate-200 text-center leading-tight mt-1 line-clamp-2">
@@ -361,7 +388,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
           <legend className="flex items-center gap-2 text-xs font-bold uppercase text-amber-400 tracking-wider mb-2">
             <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">2</span>
             <span>Escolha a Marca</span>
-            {draft.typeId && minPrice30ForType && (
+            {draft.typeId && minPrice30ForType !== null && (
               <span className="text-[11px] text-emerald-300/70 font-normal tracking-normal ml-auto">
                 (a partir de {formatPrice(minPrice30ForType)})
               </span>
@@ -372,7 +399,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
             className="grid grid-cols-3 gap-2.5"
             onKeyDown={(e) => {
               const brandOptions = BRANDS.map(b => {
-                const isAvail = draft.typeId ? getPrice(draft.typeId, b.id, 30) !== null : false;
+                const isAvail = draft.typeId ? isOffered(PRICES, draft.typeId, b.id) : false;
                 return { ...b, disabled: !isAvail };
               });
               handleGroupKeyDown(e, brandOptions, draft.brandId, handleSelectBrand, brandRefs);
@@ -381,7 +408,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
             {BRANDS.map((brand, idx) => {
               const isSelected = draft.brandId === brand.id;
               const hasAnySelection = draft.brandId !== null;
-              const isAvailable = draft.typeId ? getPrice(draft.typeId, brand.id, 30) !== null : true;
+              const isAvailable = draft.typeId ? isOffered(PRICES, draft.typeId, brand.id) : true;
 
               return (
                 <button
@@ -416,6 +443,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
                     loading="lazy"
                     className="w-9 h-9 object-contain group-hover:scale-110 transition-transform"
                     onError={(e) => {
+                      if (applyImageFallback(e, brand.fallbackLogo)) return;
                       e.currentTarget.style.display = 'none';
                     }}
                   />
@@ -450,8 +478,11 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
               const isSelected = draft.size === sizeObj.liters;
               const hasAnySelection = draft.size !== null;
               const price = (draft.typeId && draft.brandId)
-                ? getPrice(draft.typeId, draft.brandId, sizeObj.liters)
+                ? getPrice(draft.typeId, draft.brandId, sizeObj.liters, PRICES)
                 : null;
+              const sizeOffered = (draft.typeId && draft.brandId)
+                ? isOffered(PRICES, draft.typeId, draft.brandId, sizeObj.liters)
+                : true;
 
               return (
                 <button
@@ -460,10 +491,14 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
                   type="button"
                   role="radio"
                   aria-checked={isSelected}
+                  aria-disabled={!sizeOffered}
+                  disabled={!sizeOffered}
                   tabIndex={isSelected ? 0 : (!hasAnySelection && idx === 0 ? 0 : -1)}
-                  onClick={() => handleSelectSize(sizeObj.liters)}
+                  onClick={() => sizeOffered && handleSelectSize(sizeObj.liters)}
                   className={`relative p-3 rounded-2xl bg-[#0d1c10] border transition-all duration-200 flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-amber-400 ${
-                    isSelected
+                    !sizeOffered
+                      ? 'opacity-40 cursor-not-allowed border-emerald-950'
+                      : isSelected
                       ? 'border-amber-400 shadow-gold-glow scale-105 z-10'
                       : (hasAnySelection ? 'border-emerald-900/40 opacity-60 hover:opacity-100 hover:scale-105 hover:border-amber-500/40' : 'border-emerald-900/40 hover:scale-105 hover:border-amber-500/40')
                   }`}
@@ -484,7 +519,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
                   <div className="flex flex-col text-left">
                     <span className="text-sm font-extrabold text-slate-100">{sizeObj.liters} Litros</span>
                     <span className="text-xs font-bold text-amber-400">
-                      {price !== null ? formatPrice(price) : '---'}
+                      {!sizeOffered ? 'Indisponível' : !pricesAvailable ? 'Consultar' : price !== null ? formatPrice(price) : '---'}
                     </span>
                   </div>
                 </button>
@@ -610,7 +645,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
                 {items.map(item => {
                 const type = TYPES.find(t => t.id === item.typeId);
                 const brand = BRANDS.find(b => b.id === item.brandId);
-                const unitPrice = getPrice(item.typeId, item.brandId, item.size) || 0;
+                const unitPrice = getPrice(item.typeId, item.brandId, item.size, PRICES) || 0;
                 const lineSubtotal = unitPrice * item.qty;
 
                 return (
@@ -627,6 +662,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
                           height={32}
                           loading="lazy"
                           className="w-8 h-8 object-contain shrink-0"
+                          onError={(e) => { applyImageFallback(e, brand.fallbackLogo); }}
                         />
                       )}
                       <div className="flex flex-col min-w-0">
@@ -641,7 +677,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
 
                     <div className="flex items-center gap-3 shrink-0">
                       <span className="font-extrabold text-amber-400 text-sm">
-                        {formatPrice(lineSubtotal)}
+                        {pricesAvailable ? formatPrice(lineSubtotal) : 'Consultar'}
                       </span>
 
                       {/* Item Stepper */}
@@ -696,10 +732,14 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
                 <span className="font-bold text-emerald-200/80">Total de Litros:</span>
                 <span className="font-extrabold text-amber-300">{totalLiters}L</span>
               </div>
-              <div className="flex items-center justify-between text-base">
-                <span className="font-black text-slate-100">Valor Total:</span>
-                <span className="text-xl font-black text-amber-400">{formatPrice(totalPrice)}</span>
-              </div>
+              {pricesAvailable ? (
+                <div className="flex items-center justify-between text-base">
+                  <span className="font-black text-slate-100">Valor Total:</span>
+                  <span className="text-xl font-black text-amber-400">{formatPrice(totalPrice)}</span>
+                </div>
+              ) : (
+                <p className="text-xs font-bold text-amber-300/90 text-center">Valores a confirmar pelo WhatsApp</p>
+              )}
 
               {/* Promo Banner / Progress Bar */}
               {totalLiters < PROMO_MIN_LITERS ? (
@@ -725,7 +765,7 @@ export default function OrderConfigurator({ onOpenCalculator, preSelectedType, o
               {/* WhatsApp Checkout Button */}
               <button
                 type="button"
-                onClick={() => window.open(buildWhatsAppUrl(items), '_blank')}
+                onClick={() => window.open(buildWhatsAppUrl(items, catalog), '_blank')}
                 className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 text-slate-950 font-black text-[13px] sm:text-sm uppercase tracking-normal sm:tracking-wider shadow-gold-glow hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 sm:gap-2.5"
               >
                 <MessageCircle className="w-5 h-5 fill-slate-950 stroke-slate-950" />

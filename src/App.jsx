@@ -6,9 +6,11 @@ import Catalog from './components/Catalog';
 import ChoppCalculatorModal from './components/ChoppCalculatorModal';
 import Footer from './components/Footer';
 import { MessageCircle, Calculator, ChevronUp } from 'lucide-react';
-import { WHATSAPP_NUMBER, WHATSAPP_SIGNATURE } from './utils/whatsapp';
+import { WHATSAPP_SIGNATURE } from './utils/whatsapp';
+import { CatalogProvider, useCatalog } from './data/CatalogContext';
 
-export default function App() {
+function AppContent() {
+  const { whatsapp } = useCatalog();
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [preSelectedType, setPreSelectedType] = useState(null);
 
@@ -16,7 +18,7 @@ export default function App() {
     let text = customMessage || 'Olá! Gostaria de solicitar um orçamento para entrega de chopp.';
     text += WHATSAPP_SIGNATURE;
     const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`, '_blank');
+    window.open(`https://wa.me/${whatsapp}?text=${encodedText}`, '_blank');
   };
 
   const handleCatalogSelectType = (typeId) => {
@@ -113,5 +115,13 @@ export default function App() {
       </div>
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <CatalogProvider>
+      <AppContent />
+    </CatalogProvider>
   );
 }
