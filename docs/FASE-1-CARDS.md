@@ -30,6 +30,25 @@
 
 > Custos, pedidos e dashboard = Fase 2.
 
+### Como aplicar migrations (ambiente na nuvem)
+
+No ambiente de nuvem do Claude Code a porta Postgres (5432/6543) é bloqueada, então `supabase db push` dá `Connection timed out`. Padrão para os próximos cards: **Management API sobre HTTPS** com o `SUPABASE_ACCESS_TOKEN` do ambiente (token com escopo de projeto). Nunca imprimir, gravar em arquivo ou commitar o token.
+
+1. **Confirmar o alvo** antes de qualquer escrita: `GET https://api.supabase.com/v1/projects/auaodnjrpaqsgcoogtcb` deve retornar `name = degusta-chopp` e `region = sa-east-1`. Divergiu: parar.
+2. **Migration**: `POST https://api.supabase.com/v1/projects/auaodnjrpaqsgcoogtcb/database/query` com `{"query": "<conteúdo exato do arquivo .sql>"}`. Um arquivo por chamada, em ordem (`0001`, `0002`, ...). Não usar `apply_migration`.
+3. **Registrar no histórico do CLI** logo após cada migration (formato do CLI 3.0.0), para o `supabase migration list` não divergir:
+   ```sql
+   create schema if not exists supabase_migrations;
+   create table if not exists supabase_migrations.schema_migrations (version text not null primary key, statements text[], name text);
+   insert into supabase_migrations.schema_migrations(version, name, statements)
+   values ('000N', '<nome>', array[$mig$<conteúdo exato do arquivo>$mig$]) on conflict (version) do nothing;
+   ```
+   Prova: `select version, name from supabase_migrations.schema_migrations order by 1` (o `migration list --remote` também exige Postgres e falha com timeout na nuvem; localmente funciona).
+4. **Seed**: mesma chamada de `database/query` com o conteúdo exato de `supabase/seed.sql` (idempotente).
+5. **Upload de imagens**: Storage API HTTPS (`POST /storage/v1/object/catalog/<path>`, `x-upsert: true`) com a secret key obtida em tempo de execução por `GET /v1/projects/<ref>/api-keys?reveal=true`, mantida só em memória. Depois atualizar `logo_path`/`image_path` por SQL.
+6. **Aceite**: REST com a publishable key (anon) e SQL simulando papéis (`set local role anon/authenticated` + `request.jwt.claims`) dentro de um `DO` que termina em `RAISE EXCEPTION`, para reverter os dados de teste.
+7. **Validade do token:** o `SUPABASE_ACCESS_TOKEN` vence em **7 dias** e precisa ser renovado pelo Marcelo. Erro 401/403 na Management API = token vencido: parar e avisar.
+
 ---
 
 ## CARD 1 — Supabase: schema, RLS, storage e seed
