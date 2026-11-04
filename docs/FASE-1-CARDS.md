@@ -460,8 +460,8 @@ grant execute on function public.complete_password_change() to authenticated;
 - Ao logar, se existir histórico com mais de 12 meses, o **Dono** vê um aviso:
   "Há registros do Histórico com mais de 12 meses (de MM/AAAA a MM/AAAA). Deseja apagar?"
   com **Baixar e apagar** · **Lembrar depois**. "Lembrar depois" = a pergunta volta no próximo login do Dono.
-- Exclusão manual (tela Histórico, botão visível só para o Dono): escolher **um mês** ou **todos os meses
-  com mais de 12 meses**… e também qualquer mês fechado, se o Dono quiser. Nunca linha a linha.
+- Exclusão manual (tela Histórico, botão visível só para o Dono), a qualquer momento: **um mês fechado** por vez
+  ou **todos os meses fechados de uma vez** (até 12 meses). Nunca linha a linha; o mês corrente nunca.
 - Antes de apagar: **download obrigatório** do período (CSV, UTF-8 com BOM, separador `;`, colunas em português).
   O botão "Apagar" só habilita depois do download daquele período.
 - Confirmação digitando o mês (ex.: `03/2026`) ou `APAGAR` para o lote.
