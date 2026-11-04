@@ -7,14 +7,16 @@ import Placeholder from './pages/Placeholder';
 import UsersPage from './pages/UsersPage';
 import PricesPage from './pages/PricesPage';
 import CatalogPage from './pages/CatalogPage';
+import ConfigPage from './pages/ConfigPage';
+import HistoryPage from './pages/HistoryPage';
 import { adminConfigured } from './supabase';
 import { canAccess, homePathForRole } from './rules';
 
 const PAGES = {
   precos: { title: 'Preços', card: 5, element: <PricesPage /> },
   catalogo: { title: 'Catálogo', card: 6, element: <CatalogPage /> },
-  config: { title: 'Configurações', card: 7 },
-  historico: { title: 'Histórico', card: 7 },
+  config: { title: 'Configurações', card: 7, element: <ConfigPage /> },
+  historico: { title: 'Histórico', card: 7, element: <HistoryPage /> },
   usuarios: { title: 'Usuários', card: 4, element: <UsersPage /> }
 };
 

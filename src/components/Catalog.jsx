@@ -31,7 +31,7 @@ function CatalogSkeleton() {
 }
 
 export default function Catalog({ onOpenWhatsApp, onSelectType }) {
-  const { BRANDS, TYPES, PRICES, pricesAvailable, loading } = useCatalog();
+  const { BRANDS, TYPES, PRICES, PROMO_MIN_LITERS, pricesAvailable, loading } = useCatalog();
   const [selectedBrandFilter, setSelectedBrandFilter] = useState('todos');
 
   // Modo sem preços: "Consultar". Preço ausente com preços ativos: "—".
@@ -255,11 +255,11 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
           <div className="flex items-center gap-3 text-left">
             <Sparkles className="w-6 h-6 text-amber-400 shrink-0" />
             <p className="text-xs sm:text-sm text-emerald-100/90 font-medium">
-              Precisa de chopeira elétrica ou a gelo? Em pedidos acima de 50 Litros a locação é totalmente <strong className="text-amber-300 font-bold">Gratuita</strong>!
+              Precisa de chopeira elétrica ou a gelo? Em pedidos acima de {PROMO_MIN_LITERS} Litros a locação é totalmente <strong className="text-amber-300 font-bold">Gratuita</strong>!
             </p>
           </div>
           <button
-            onClick={() => onOpenWhatsApp("Olá! Gostaria de consultar os detalhes da chopeira cortesia acima de 50L.")}
+            onClick={() => onOpenWhatsApp(`Olá! Gostaria de consultar os detalhes da chopeira cortesia acima de ${PROMO_MIN_LITERS}L.`)}
             className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs shrink-0 shadow-gold-glow hover:scale-105 transition-transform"
           >
             Consultar Condições

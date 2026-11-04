@@ -7,6 +7,16 @@ import {
 } from './products.js';
 
 const STATIC_WHATSAPP = '5511991069099';
+
+// Valores atuais do site: servem de fallback se o Supabase falhar ou se um campo vier inválido.
+export const STATIC_SETTINGS = {
+  businessHours: 'Segunda a Sábado das 08h às 20h',
+  regions: 'São Paulo (Capital), Grande SP, Região do ABC, Osasco, Barueri, Alphaville e Guarulhos.',
+  paymentInfo: 'Pix, Cartões de Crédito (até 12x) e Débito no momento da entrega.',
+  instagram: 'degustachopp'
+};
+
+const text = (value, fallback) => (typeof value === 'string' && value.trim() ? value.trim() : fallback);
 const LOAD_TIMEOUT_MS = 3000;
 
 const BADGE_COLORS = {
@@ -39,6 +49,7 @@ export function buildFallbackCatalog() {
     PRICES,
     PROMO_MIN_LITERS: STATIC_PROMO_MIN_LITERS,
     whatsapp: STATIC_WHATSAPP,
+    settings: { ...STATIC_SETTINGS },
     pricesAvailable: false,
     source: 'fallback'
   };
@@ -105,7 +116,18 @@ function mapCatalog({ brands, flavors, offers, settings }, baseUrl) {
     : STATIC_WHATSAPP;
   const promo = Number.isInteger(settings?.promo_min_liters) ? settings.promo_min_liters : STATIC_PROMO_MIN_LITERS;
 
-  return { BRANDS, TYPES, SIZES, PRICES, PROMO_MIN_LITERS: promo, whatsapp, pricesAvailable: true, source: 'supabase' };
+  // Instagram vazio no banco = sem link (o dono removeu); campo ausente/inválido = valor atual do site.
+  const instagram = settings && settings.instagram === null
+    ? ''
+    : (typeof settings?.instagram === 'string' && /^[a-z0-9._]{1,30}$/.test(settings.instagram) ? settings.instagram : STATIC_SETTINGS.instagram);
+  const siteSettings = {
+    businessHours: text(settings?.business_hours, STATIC_SETTINGS.businessHours),
+    regions: text(settings?.regions, STATIC_SETTINGS.regions),
+    paymentInfo: text(settings?.payment_info, STATIC_SETTINGS.paymentInfo),
+    instagram
+  };
+
+  return { BRANDS, TYPES, SIZES, PRICES, PROMO_MIN_LITERS: promo, whatsapp, settings: siteSettings, pricesAvailable: true, source: 'supabase' };
 }
 
 // Leitura pública via REST (PostgREST) com fetch nativo: zero dependência no bundle da landing.
