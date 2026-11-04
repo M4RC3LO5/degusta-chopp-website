@@ -451,6 +451,84 @@ grant execute on function public.complete_password_change() to authenticated;
 
 ---
 
+## CARD 10 — Retenção e exclusão do Histórico (só Dono)
+
+**Objetivo:** histórico não cresce para sempre, e só o Dono decide apagar, sempre deixando rastro.
+
+**Regras (decididas com o dono)**
+- Prazo de guarda: **12 meses**. Nada é apagado automaticamente.
+- Ao logar, se existir histórico com mais de 12 meses, o **Dono** vê um aviso:
+  "Há registros do Histórico com mais de 12 meses (de MM/AAAA a MM/AAAA). Deseja apagar?"
+  com **Baixar e apagar** · **Lembrar depois**. "Lembrar depois" = a pergunta volta no próximo login do Dono.
+- Exclusão manual (tela Histórico, botão visível só para o Dono): escolher **um mês** ou **todos os meses
+  com mais de 12 meses**… e também qualquer mês fechado, se o Dono quiser. Nunca linha a linha.
+- Antes de apagar: **download obrigatório** do período (CSV, UTF-8 com BOM, separador `;`, colunas em português).
+  O botão "Apagar" só habilita depois do download daquele período.
+- Confirmação digitando o mês (ex.: `03/2026`) ou `APAGAR` para o lote.
+- Toda exclusão gera registro permanente em `audit_purges` (quem, quando, período, quantidade de linhas).
+  `audit_purges` não pode ser apagado pelo app.
+
+**Banco (migration 0005_audit_retention.sql)**
+- `audit_purges(id, purged_by, purged_at, period_start, period_end, rows_deleted)`; RLS: select para dono e gerente.
+- RPC `public.audit_months()` (dono/gerente): meses com contagem de linhas e flag `older_than_12m`.
+- RPC `public.purge_audit_month(p_month date)` (`security definer`, só `my_role() = 'dono'`): apaga o mês inteiro,
+  grava em `audit_purges` numa única transação. Mês corrente: recusado.
+- Nenhum GRANT de DELETE em `audit_log` para `authenticated` (a exclusão só passa pela RPC).
+
+**Critérios de aceite**
+- [ ] Gerente e operador não veem o botão e a RPC recusa (42501).
+- [ ] Aviso aparece no login do Dono só quando há meses com mais de 12 meses; "Lembrar depois" volta no próximo login.
+- [ ] Apagar sem baixar é impossível pela tela.
+- [ ] Cada exclusão aparece em `audit_purges` e o mês corrente nunca é apagado.
+
+---
+
+## CARD 11 — Ponto dos colaboradores (controle interno)
+
+**Objetivo:** o dono, em outro município, vê a que horas cada colaborador entrou, saiu e fez intervalo.
+É controle interno: não substitui ponto certificado (REP-P/Portaria 671).
+
+**Regras (decididas com o dono)**
+- Loja: Rua Apalaches, 1215 — Capuava — Santo André/SP.
+- Marcações do próprio login: **Entrada · Início do intervalo · Fim do intervalo · Saída** (botão grande, um toque).
+- Hora = **hora do servidor** (nunca a do celular).
+- Localização capturada em cada marcação (com consentimento LGPD no 1º uso). Raio aceito **configurável** em
+  Config (padrão definido pelo dono). Fora do raio ou sem localização = marcação aceita, porém **sinalizada**.
+- **Esquecimento:** o próprio colaborador lança a marcação esquecida, informando horário e motivo (até 120 caracteres),
+  limitado aos **últimos 7 dias**. Fica sinalizada como "Esquecimento" no espelho. Não pode editar nem apagar marcação.
+- Quem marca: todo usuário ativo (operador, gerente). O Dono pode marcar também, se quiser.
+- Espelho (Dono e Gerente): por colaborador e mês — marcações do dia, horas trabalhadas, intervalo, totais,
+  marcações sinalizadas (fora do raio / sem localização / esquecimento).
+- Exportação: CSV e PDF do espelho mensal.
+- **Retenção 12 meses**: mesmo padrão do Card 10 (aviso no login do Dono, download obrigatório, expurgo por mês,
+  registro em `time_purges`). Recomendação ao dono: guardar os arquivos baixados por 5 anos.
+
+**Banco (migration 0006_time_tracking.sql)**
+- `settings`: `store_lat numeric(9,6)`, `store_lng numeric(9,6)`, `store_radius_m int check (between 50 and 50000)`.
+  Config ganha "Usar minha localização atual" (o dono na loja) + campos lat/lng editáveis.
+- `time_entries(id, user_id, kind enum('entrada','intervalo_inicio','intervalo_fim','saida'), recorded_at timestamptz
+  default now(), source enum('app','esquecimento'), claimed_at timestamptz null, reason text ≤120, lat, lng,
+  accuracy_m, distance_m, within_radius bool null)`.
+- RLS: colaborador lê só as próprias; dono/gerente leem todas. Nenhum INSERT/UPDATE/DELETE direto.
+- RPC `registrar_ponto(kind, lat, lng, accuracy)` (server time, distância calculada no banco, sequência válida:
+  não permite duas Entradas seguidas etc.).
+- RPC `lancar_esquecimento(kind, claimed_at, reason)` (≤ 7 dias, não no futuro).
+- RPC `purge_time_month(p_month)` só Dono + `time_purges`.
+
+**Telas**
+- `/admin/ponto` (todos): relógio, próximo passo sugerido, botão grande, marcações de hoje, "Lancei esquecimento".
+- `/admin/ponto/espelho` (dono/gerente): filtro colaborador + mês, exportar.
+- Barra inferior: com 6+ itens, agrupar os menos usados em "Mais".
+
+**Critérios de aceite**
+- [ ] Hora gravada é a do servidor mesmo com relógio do celular adiantado.
+- [ ] Fora do raio / sem permissão de localização → marcação aceita e sinalizada.
+- [ ] Esquecimento com mais de 7 dias ou no futuro → recusado.
+- [ ] Colaborador não vê marcações de outros; nada é editável/apagável pelo app (exceto expurgo do Dono).
+- [ ] Espelho mensal bate com as marcações; CSV/PDF exportam o mesmo conteúdo.
+
+---
+
 ## CARD 8 — Lançamento
 
 **Objetivo:** abrir o site ao público com dados reais.
