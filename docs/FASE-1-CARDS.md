@@ -436,6 +436,13 @@ grant execute on function public.complete_password_change() to authenticated;
 - Diff legível: "Preço 50L de Pilsen · Bru: R$ 590,00 → R$ 620,00". Mapear nomes de campos para português; ignorar `updated_at` e `updated_by`.
 - Filtros: pessoa, tipo (preço, marca, sabor, configuração, usuário), período.
 
+**Nomes de quem alterou (decisão pós-Card 5)**
+- Toda a equipe (dono, gerente, operador) pode ver o **nome** de quem fez a última alteração e no Histórico.
+- `profiles` continua restrito por RLS. Criar migration `0004_staff_names.sql` com a RPC `public.staff_names()`
+  (`security definer`, `stable`, retorna só `id, full_name` de `profiles`, exige `public.my_role() is not null`;
+  `revoke all from public, anon`; `grant execute to authenticated`).
+- Usar essa RPC no cabeçalho "Última alteração" do Card 5 e no Histórico.
+
 **Critérios de aceite**
 - [ ] Trocar WhatsApp → mensagem do site vai para o novo número sem deploy.
 - [ ] Toda alteração dos Cards 4–7 aparece no Histórico com nome da pessoa.
@@ -464,6 +471,12 @@ grant execute on function public.complete_password_change() to authenticated;
 4. Domínio próprio (se o dono quiser): registrar no Registro.br em nome dele → Vercel → Domains → DNS.
 5. Hospedagem: projeto Vercel na conta do dono **ou** plano Pro (Hobby não permite uso comercial).
 6. Vercel → Deployment Protection: domínio de produção acessível sem login; previews protegidos.
+
+**Limpeza pré-lançamento (dados de teste dos Cards 4–7)**
+- Usuários `teste.*`: continuam desativados (não aparecem para o dono como ativos). Avaliar se ficam ou se o Arquiteto remove.
+- `audit_log`: remover as linhas geradas pelos testes, para o histórico do dono começar limpo.
+- `brands`/`flavors`/`offers`: zerar `updated_by` que aponte para usuários de teste e remover marcas/sabores com slug `teste-`.
+- Executada pelo Arquiteto com aprovação do Marcelo, logo antes de entregar o admin ao dono.
 
 **Critérios de aceite**
 - [ ] Aba anônima abre o site sem login da Vercel.
