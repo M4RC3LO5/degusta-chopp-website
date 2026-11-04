@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import LoginPage from './auth/LoginPage';
 import RequireAuth, { FullScreenLoading } from './auth/RequireAuth';
 import Placeholder from './pages/Placeholder';
+import UsersPage from './pages/UsersPage';
 import { adminConfigured } from './supabase';
 import { canAccess, homePathForRole } from './rules';
 
@@ -12,7 +13,7 @@ const PAGES = {
   catalogo: { title: 'Catálogo', card: 6 },
   config: { title: 'Configurações', card: 7 },
   historico: { title: 'Histórico', card: 7 },
-  usuarios: { title: 'Usuários', card: 4 }
+  usuarios: { title: 'Usuários', card: 4, element: <UsersPage /> }
 };
 
 function Home() {
@@ -37,7 +38,7 @@ function Routing() {
           <Route
             key={path}
             path={path}
-            element={<RoleGate path={path}><Placeholder title={page.title} card={page.card} /></RoleGate>}
+            element={<RoleGate path={path}>{page.element || <Placeholder title={page.title} card={page.card} />}</RoleGate>}
           />
         ))}
       </Route>

@@ -43,6 +43,15 @@ export const ROLES = { dono: 'dono', gerente: 'gerente', operador: 'operador' };
 
 export const ROLE_LABELS = { dono: 'Dono', gerente: 'Gerente', operador: 'Operador' };
 
+// Descrição de cada perfil (espelha a tabela de permissões da Fase 1).
+export const ROLE_DESCRIPTIONS = {
+  dono: 'Acesso total: Preços, Catálogo, Configurações, Histórico e Usuários.',
+  gerente: 'Preços, Catálogo, Configurações e Histórico. Não gerencia usuários.',
+  operador: 'Só Preços e Catálogo. Sem Configurações, Histórico e Usuários.'
+};
+
+export const USERS_NOTICE = 'Mantenha pelo menos 2 usuários com perfil Dono.';
+
 // Rotas do admin (relativas a /admin) e quem pode acessar. Ordem = ordem da barra inferior.
 export const ADMIN_ROUTES = [
   { path: 'precos', label: 'Preços', icon: 'tag', roles: ['dono', 'gerente', 'operador'] },

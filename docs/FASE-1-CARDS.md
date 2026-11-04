@@ -48,6 +48,8 @@ No ambiente de nuvem do Claude Code a porta Postgres (5432/6543) é bloqueada, e
 5. **Upload de imagens**: Storage API HTTPS (`POST /storage/v1/object/catalog/<path>`, `x-upsert: true`) com a secret key obtida em tempo de execução por `GET /v1/projects/<ref>/api-keys?reveal=true`, mantida só em memória. Depois atualizar `logo_path`/`image_path` por SQL.
 6. **Aceite**: REST com a publishable key (anon) e SQL simulando papéis (`set local role anon/authenticated` + `request.jwt.claims`) dentro de um `DO` que termina em `RAISE EXCEPTION`, para reverter os dados de teste.
 7. **Validade do token:** o `SUPABASE_ACCESS_TOKEN` vence em **7 dias** e precisa ser renovado pelo Marcelo. Erro 401/403 na Management API = token vencido: parar e avisar.
+8. **Edge Functions**: deploy pela API (sem Docker, sem porta Postgres): `npx supabase functions deploy <nome> --project-ref auaodnjrpaqsgcoogtcb --use-api --yes`. O `--yes` é exigido pelo CLI 3.x em modo não interativo (ele pede confirmação para mutar o projeto hospedado). `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` são injetadas no ambiente da função; nunca vão para o front nem para o repositório. A lógica fica em `handler.ts` (dependências injetadas) e é testada sem rede com `npm run test:functions`.
+9. **Logs (Management API)**: `GET /v1/projects/<ref>/analytics/endpoints/logs?sql=...&iso_timestamp_start=...&iso_timestamp_end=...` (janela de até 24 h). É um fluxo único em ClickHouse: `select ... from logs where source = 'auth_logs'` (também `auth_audit_logs`, `function_logs`, `function_edge_logs`, `edge_logs`). O antigo `logs.all` responde `410 Gone`.
 
 ---
 
@@ -215,6 +217,11 @@ grant select, insert, update on public.brands, public.flavors, public.offers to 
 grant select, update on public.settings to authenticated;
 grant select on public.profiles, public.audit_log to authenticated;
 grant execute on function public.my_role() to authenticated;
+
+-- (0003) service_role usado pela Edge Function admin-users
+grant select, insert, update on public.profiles to service_role;
+grant select, insert on public.audit_log to service_role;
+grant usage on sequence public.audit_log_id_seq to service_role;
 
 -- RPC: concluir troca de senha do 1º acesso
 create or replace function public.complete_password_change() returns void
