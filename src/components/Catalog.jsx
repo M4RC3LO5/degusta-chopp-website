@@ -111,7 +111,7 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
                 className="w-full md:w-[calc(50%-1rem)] rounded-3xl bg-[#142718] border border-amber-500/25 p-6 lg:p-8 shadow-neu-flat hover:shadow-neu-gold hover:border-amber-400/60 transition-all duration-300 flex flex-col justify-between group"
               >
                 {/* Top Section */}
-                <div className="flex flex-col flex-grow justify-between">
+                <div className="flex flex-col flex-grow">
                   
                   {/* Header Card Info */}
                   <div>
@@ -222,7 +222,7 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
                   </div>
 
                   {/* Ideal Para Row */}
-                  <div className="flex items-center gap-2 text-xs text-emerald-200/80 mb-6 bg-[#122215] px-3.5 py-3 rounded-xl border border-emerald-900/40 min-h-[44px] shrink-0">
+                  <div className="flex items-center gap-2 text-xs text-emerald-200/80 mb-6 mt-auto bg-[#122215] px-3.5 py-3 rounded-xl border border-emerald-900/40 min-h-[44px] shrink-0">
                     <Info className="w-4 h-4 text-amber-400 shrink-0" />
                     <span><strong>Ideal para:</strong> {type.idealFor}</span>
                   </div>
