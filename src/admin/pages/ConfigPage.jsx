@@ -134,7 +134,7 @@ export default function ConfigPage() {
 
         {message && (
           <p role={message.kind === 'error' ? 'alert' : 'status'} data-testid="config-message"
-            className={`text-sm font-semibold rounded-xl px-3 py-2.5 border ${message.kind === 'error' ? 'text-rose-300 bg-rose-500/10 border-rose-500/30' : 'text-emerald-200 bg-emerald-500/10 border-emerald-500/30'}`}>
+            className={`text-sm font-semibold rounded-xl px-3 py-2.5 border ${message.kind === 'error' ? 'text-rose-300 bg-rose-500/10 border-rose-500/30' : 'text-sky-200 bg-sky-500/15 border-sky-400/40'}`}>
             {message.text}
           </p>
         )}
