@@ -1,0 +1,7 @@
+﻿Data e hora;Pessoa;Tipo;Ação;O que mudou;Registro (ID);Dados antes (JSON);Dados depois (JSON)
+10/01/2025 09:00:00;Sistema;Preço;Alteração;Preço 30L de sabor removido · marca removida: R$ 380,00 → R$ 420,00;teste-card10-2025-01-0;"{""price_30"":380}";"{""price_30"":420}"
+11/01/2025 09:00:00;Teste Dono;Configuração;Alteração;WhatsApp de Configurações do site: (11) 99999-0000 → (11) 98888-7777;teste-card10-2025-01-1;"{""whatsapp"":""5511999990000""}";"{""whatsapp"":""5511988887777""}"
+12/01/2025 09:00:00;Teste Dono;Preço;Alteração;Preço 30L de sabor removido · marca removida: R$ 380,00 → R$ 420,00;teste-card10-2025-01-2;"{""price_30"":380}";"{""price_30"":420}"
+13/01/2025 09:00:00;Sistema;Configuração;Alteração;WhatsApp de Configurações do site: (11) 99999-0000 → (11) 98888-7777;teste-card10-2025-01-3;"{""whatsapp"":""5511999990000""}";"{""whatsapp"":""5511988887777""}"
+14/01/2025 09:00:00;Teste Dono;Preço;Alteração;Preço 30L de sabor removido · marca removida: R$ 380,00 → R$ 420,00;teste-card10-2025-01-4;"{""price_30"":380}";"{""price_30"":420}"
+15/01/2025 09:00:00;Teste Dono;Configuração;Alteração;WhatsApp de Configurações do site: (11) 99999-0000 → (11) 98888-7777;teste-card10-2025-01-5;"{""whatsapp"":""5511999990000""}";"{""whatsapp"":""5511988887777""}"

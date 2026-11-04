@@ -8,7 +8,7 @@
     "build": "vite build && vite build --config vite.admin.config.js",
     "preview": "vite preview",
     "test:functions": "node --experimental-strip-types --test supabase/functions/admin-users/handler.test.ts",
-    "test:admin": "node --test src/admin/pricing.test.js src/admin/catalogRules.test.js src/admin/historyDiff.test.js src/admin/settingsRules.test.js"
+    "test:admin": "node --test src/admin/pricing.test.js src/admin/catalogRules.test.js src/admin/historyDiff.test.js src/admin/settingsRules.test.js src/admin/retention.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

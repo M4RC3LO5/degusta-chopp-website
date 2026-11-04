@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Tag, Beer, Settings, History, Users, LogOut } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { ROLE_LABELS, routesForRole } from '../rules';
+import RetentionNotice from './RetentionNotice';
 
 const ICONS = { tag: Tag, beer: Beer, settings: Settings, history: History, users: Users };
 
@@ -31,6 +32,8 @@ export default function AdminLayout({ children }) {
           </button>
         </div>
       </header>
+
+      {profile.role === 'dono' && <RetentionNotice />}
 
       <main className="flex-1 w-full max-w-3xl lg:max-w-5xl mx-auto px-4 py-6 pb-28">{children}</main>
 
