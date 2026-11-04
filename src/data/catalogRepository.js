@@ -108,28 +108,34 @@ function mapCatalog({ brands, flavors, offers, settings }, baseUrl) {
   return { BRANDS, TYPES, SIZES, PRICES, PROMO_MIN_LITERS: promo, whatsapp, pricesAvailable: true, source: 'supabase' };
 }
 
+// Leitura pública via REST (PostgREST) com fetch nativo: zero dependência no bundle da landing.
+// O supabase-js fica reservado ao admin (/admin), que precisa de Auth.
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+async function rest(path, signal) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Accept: 'application/json' },
+    signal
+  });
+  if (!response.ok) throw new Error(`REST ${response.status} em ${path.split('?')[0]}`);
+  return response.json();
+}
+
 async function fetchFromSupabase(signal) {
-  // Import dinâmico: o supabase-js sai do bundle inicial da landing.
-  const { supabase, SUPABASE_URL } = await import('../lib/supabase.js');
-  if (!supabase) throw new Error('Supabase não configurado');
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error('Supabase não configurado');
 
-  const run = async (query) => {
-    const { data, error } = await query.abortSignal(signal);
-    if (error) throw new Error(error.message || 'erro de consulta');
-    return data;
-  };
-
-  const [brands, flavors, offers, settings] = await Promise.all([
-    run(supabase.from('brands').select('*').eq('active', true).order('sort_order')),
-    run(supabase.from('flavors').select('*').eq('active', true).order('sort_order')),
-    run(supabase.from('offers').select('*').eq('active', true)),
-    run(supabase.from('settings').select('*').eq('id', 1).maybeSingle())
+  const [brands, flavors, offers, settingsRows] = await Promise.all([
+    rest('brands?select=*&active=eq.true&order=sort_order', signal),
+    rest('flavors?select=*&active=eq.true&order=sort_order', signal),
+    rest('offers?select=*&active=eq.true', signal),
+    rest('settings?select=*&id=eq.1', signal)
   ]);
 
   if (!brands?.length || !flavors?.length || !offers?.length) {
     throw new Error('resposta sem marcas, sabores ou ofertas');
   }
-  return mapCatalog({ brands, flavors, offers, settings }, SUPABASE_URL);
+  return mapCatalog({ brands, flavors, offers, settings: settingsRows?.[0] || null }, SUPABASE_URL);
 }
 
 /**

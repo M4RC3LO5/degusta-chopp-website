@@ -4,14 +4,15 @@ Site público lendo do Supabase (`degusta-chopp`) com fallback sem preços. Test
 
 ## Bundle (gzip -9, bytes)
 
+Revisão do Arquiteto: a leitura pública passou a usar `fetch` nativo na REST do Supabase (PostgREST), sem `supabase-js` no site público. O `supabase-js` continua no `package.json` para o admin (Card 3).
+
 | Arquivo | Antes (master) | Depois |
 |---|---|---|
-| JS de entrada | 61.854 | 64.605 (+2.751) |
-| JS `supabase-js` (chunk carregado sob demanda) | — | 59.342 |
+| JS de entrada | 61.854 | 63.199 (+1.345) |
 | CSS | 7.275 | 7.438 (+163) |
-| **Total** | **69.129** | **131.385 (+62.256 ≈ 60,8 KB)** |
+| **Total** | **69.129** | **70.637 (+1.508 ≈ 1,5 KB)** |
 
-O `supabase-js` entra por `import()` dinâmico (não pesa no chunk de entrada). Somando o chunk lazy, o crescimento fica ~0,8 KB acima do limite de 60 KB.
+Reteste com Playwright (REST simulada): 4 requisições com `apikey`, preço R$ 777,77 exibido, tamanho ausente = "—", marca fora da resposta não aparece; com a rede abortada: 0 `R$`, células "Consultar", fallback ativo. Rota `/admin/qualquer` responde 200 no `vite preview`.
 
 ## Critérios
 
@@ -27,4 +28,4 @@ O `supabase-js` entra por `import()` dinâmico (não pesa no chunk de entrada). 
 | `api/keepalive.js` | ✅ sem header/Bearer errado/`CRON_SECRET` ausente → 401; sem `SUPABASE_URL` → 500; Bearer correto + Supabase real → 200; chave inválida → 500; host inacessível → 500. |
 | F5 em qualquer rota não dá 404; `/api/keepalive` não é reescrito | validar no preview (depende do `vercel.json` na Vercel). |
 | Cron aparece em Settings → Cron Jobs e 1ª execução retorna 200 | validar no preview/produção. |
-| Bundle da landing ≤ +60 KB gzip | ❌ no total (+60,8 KB com o chunk lazy); ✅ no chunk de entrada (+2,7 KB). Ver tabela. |
+| Bundle da landing ≤ +60 KB gzip | ✅ +1,5 KB (fetch nativo, sem supabase-js no site público). |
