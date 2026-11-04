@@ -1,0 +1,66 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 1608 >>
+stream
+BT /F2 15 Tf 36 559 Td (Espelho de ponto — Teste Operador) Tj ET
+BT /F1 9 Tf 36 541 Td (Mês 01/2025 · Degusta Chopp · controle interno) Tj ET
+BT /F2 8 Tf 36 519 Td (Data) Tj ET
+BT /F2 8 Tf 100 519 Td (Dia) Tj ET
+BT /F2 8 Tf 132 519 Td (Entrada) Tj ET
+BT /F2 8 Tf 228 519 Td (Início do intervalo) Tj ET
+BT /F2 8 Tf 324 519 Td (Fim do intervalo) Tj ET
+BT /F2 8 Tf 420 519 Td (Saída) Tj ET
+BT /F2 8 Tf 516 519 Td (Horas trabalhadas) Tj ET
+BT /F2 8 Tf 594 519 Td (Intervalo) Tj ET
+BT /F2 8 Tf 656 519 Td (Situação) Tj ET
+0.5 w 36 514 m 806 514 l S
+BT /F1 8.5 Tf 36 504 Td (10/01/2025) Tj ET
+BT /F1 8.5 Tf 100 504 Td (sex) Tj ET
+BT /F1 8.5 Tf 132 504 Td (08:00) Tj ET
+BT /F1 8.5 Tf 228 504 Td (12:00) Tj ET
+BT /F1 8.5 Tf 324 504 Td (13:00*) Tj ET
+BT /F1 8.5 Tf 420 504 Td (18:00*) Tj ET
+BT /F1 8.5 Tf 516 504 Td (9h00) Tj ET
+BT /F1 8.5 Tf 594 504 Td (1h00) Tj ET
+BT /F1 8.5 Tf 656 504 Td (Sinalizado) Tj ET
+BT /F2 9 Tf 36 485 Td (Totais) Tj ET
+BT /F1 9 Tf 36 472 Td (Dias com marcação: 1) Tj ET
+BT /F1 9 Tf 36 459 Td (Total de horas trabalhadas: 9h00) Tj ET
+BT /F1 9 Tf 36 446 Td (Total de intervalo: 1h00) Tj ET
+BT /F1 9 Tf 36 433 Td (Dias incompletos: 0) Tj ET
+BT /F1 9 Tf 36 420 Td (Marcações sinalizadas: 2) Tj ET
+BT /F2 9 Tf 36 401 Td (Marcações sinalizadas \(* na tabela\)) Tj ET
+BT /F1 8.5 Tf 36 388 Td (10/01/2025 13:00 — Fim do intervalo — Fora do raio \(1001 m da loja, precisão ±9 m\)) Tj ET
+BT /F1 8.5 Tf 36 375 Td (10/01/2025 18:00 — Saída — Sem localização) Tj ET
+BT /F1 8 Tf 36 354 Td (Horários gravados pelo servidor. Localização capturada com consentimento. Guarde este arquivo por 5 anos.) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000212 00000 n 
+0000000314 00000 n 
+0000000450 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2110
+%%EOF

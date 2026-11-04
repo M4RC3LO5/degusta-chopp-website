@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildCsv, closedMonths, confirmMatches, confirmWord, csvCell, csvFileName, monthLabel, monthStartIso, nextMonthStartIso, oldMonths, periodLabel, scopeRows } from './retention.js';
+import { buildCsv, closedMonths, confirmMatches, confirmWord, csvCell, csvFileName, monthLabel, monthStartIso, nextMonthStartIso, oldMonths, periodLabel, retentionMessage, scopeRows } from './retention.js';
 
 const m = (month, n, extra = {}) => ({ month, row_count: n, older_than_12m: false, is_current: false, ...extra });
 
@@ -56,4 +56,12 @@ test('CSV: BOM, separador ;, CRLF, colunas em português e acentos preservados',
   assert.equal(lines.length, 2);
   assert.ok(lines[1].startsWith('15/01/2025 12:30:00;Teste Dono;Preço;Alteração;Preço 30L: R$ 1,00 → R$ 2,00 | Situação: ativo;abc;'));
   assert.ok(lines[1].includes('"{""price_30"":1}"'));
+});
+
+test('aviso único de retenção: Histórico, Ponto ou os dois', () => {
+  const h = { label: 'Histórico', from: '01/2025', to: '03/2025' };
+  const p = { label: 'Ponto', from: '02/2025', to: '02/2025' };
+  assert.equal(retentionMessage([h]), 'Há registros do Histórico com mais de 12 meses (de 01/2025 a 03/2025). Deseja apagar?');
+  assert.equal(retentionMessage([p]), 'Há registros do Ponto com mais de 12 meses (de 02/2025 a 02/2025). Deseja apagar?');
+  assert.equal(retentionMessage([h, p]), 'Há registros com mais de 12 meses: Histórico (de 01/2025 a 03/2025) e Ponto (de 02/2025 a 02/2025). Deseja apagar?');
 });

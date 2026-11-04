@@ -1,0 +1,16 @@
+﻿Espelho de ponto — Teste Operador
+Mês 01/2025 · Degusta Chopp · controle interno
+Data;Dia;Entrada;Início do intervalo;Fim do intervalo;Saída;Horas trabalhadas;Intervalo;Situação
+10/01/2025;sex;08:00;12:00;13:00*;18:00*;9h00;1h00;Sinalizado
+
+Dias com marcação: 1
+Total de horas trabalhadas: 9h00
+Total de intervalo: 1h00
+Dias incompletos: 0
+Marcações sinalizadas: 2
+
+Marcações sinalizadas (* na tabela)
+10/01/2025 13:00 — Fim do intervalo — Fora do raio (1001 m da loja, precisão ±9 m)
+10/01/2025 18:00 — Saída — Sem localização
+
+Horários gravados pelo servidor. Localização capturada com consentimento. Guarde este arquivo por 5 anos.

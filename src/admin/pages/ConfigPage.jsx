@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, LocateFixed } from 'lucide-react';
 import { supabase } from '../supabase';
 import { RULES } from '../rules';
 import { Field, inputClass, primaryBtn } from './catalog/fields';
 import { loadStaffNames } from '../staffNames';
-import { maskPhone, settingsToForm, validateSettings, waTestUrl } from '../settingsRules';
+import { fmtCoord, maskPhone, settingsToForm, validateSettings, waTestUrl } from '../settingsRules';
 
 function formatDateTime(iso) {
   return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '');
@@ -25,6 +25,8 @@ export default function ConfigPage() {
   const [loadError, setLoadError] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);   // { kind: 'ok' | 'error', text }
+  const [locating, setLocating] = useState(false);
+  const [locNote, setLocNote] = useState('');
 
   const load = useCallback(async () => {
     const [s, n] = await Promise.all([
@@ -46,6 +48,23 @@ export default function ConfigPage() {
   }, [row, form]);
 
   const set = (key, value) => { setForm(f => ({ ...f, [key]: value })); setMessage(null); };
+
+  // Dono na loja: usa o GPS do aparelho para preencher latitude e longitude.
+  const useMyLocation = () => {
+    setLocNote('');
+    if (!navigator.geolocation) { setLocNote('Este aparelho não oferece localização. Digite as coordenadas.'); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        setForm(f => ({ ...f, storeLat: fmtCoord(pos.coords.latitude), storeLng: fmtCoord(pos.coords.longitude) }));
+        setMessage(null);
+        setLocNote(`Localização capturada (precisão ±${Math.round(pos.coords.accuracy)} m). Confira e toque em Salvar.`);
+      },
+      () => { setLocating(false); setLocNote('Não foi possível obter a localização. Permita o acesso no navegador ou digite as coordenadas.'); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  };
 
   const save = async (e) => {
     e.preventDefault();
@@ -131,6 +150,28 @@ export default function ConfigPage() {
             />
           </div>
         </Field>
+
+        <fieldset className="space-y-4 rounded-2xl border border-emerald-900/60 p-4">
+          <legend className="px-2 text-xs font-bold uppercase tracking-wider text-amber-400">Ponto: localização da loja</legend>
+          <p className="text-xs text-emerald-200/70">Rua Apalaches, 1215 — Santo André/SP. Marcações de ponto fora do raio ficam sinalizadas (continuam aceitas).</p>
+          <button type="button" onClick={useMyLocation} disabled={locating} data-testid="use-my-location"
+            className="w-full h-12 rounded-xl border border-amber-500/40 bg-[#0d1c10] text-sm font-bold text-amber-300 flex items-center justify-center gap-2 disabled:opacity-50">
+            <LocateFixed className="w-4 h-4" /> {locating ? 'Obtendo localização…' : 'Usar minha localização atual'}
+          </button>
+          {locNote && <p role="status" data-testid="loc-note" className="text-xs font-semibold text-sky-200">{locNote}</p>}
+          <div className="grid grid-cols-2 gap-3">
+            <Field id="cfg-lat" label="Latitude" error={errors.storeLat}>
+              <input id="cfg-lat" type="text" inputMode="decimal" autoComplete="off" value={form.storeLat} onChange={e => set('storeLat', e.target.value)} className={inputClass} />
+            </Field>
+            <Field id="cfg-lng" label="Longitude" error={errors.storeLng}>
+              <input id="cfg-lng" type="text" inputMode="decimal" autoComplete="off" value={form.storeLng} onChange={e => set('storeLng', e.target.value)} className={inputClass} />
+            </Field>
+          </div>
+          <Field id="cfg-radius" label="Raio aceito (metros)" error={errors.storeRadiusM} hint={`De ${S.storeRadiusM.min} a ${S.storeRadiusM.max} m.`}>
+            <input id="cfg-radius" type="text" inputMode="numeric" value={form.storeRadiusM}
+              onChange={e => set('storeRadiusM', e.target.value.replace(/\D/g, '').slice(0, 5))} className={inputClass} />
+          </Field>
+        </fieldset>
 
         {message && (
           <p role={message.kind === 'error' ? 'alert' : 'status'} data-testid="config-message"
