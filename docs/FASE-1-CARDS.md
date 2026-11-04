@@ -208,11 +208,11 @@ grant execute on function public.complete_password_change() to authenticated;
 
 **Storage**
 - Bucket `catalog`: público para leitura; `file_size_limit = 204800` (200 KB); `allowed_mime_types = ['image/webp']`.
-- Policies de storage: insert/update em `catalog` para `authenticated` com `public.my_role() is not null`. Sem delete.
+- Policies de storage: select/insert/update em `catalog` para `authenticated` com `public.my_role() is not null` (select é exigido pelo upload com upsert). Sem delete.
 
 **Critérios de aceite**
 - [ ] Com a anon key: `select` em `offers` retorna só ativas; `update` falha.
-- [ ] Sem login: `select` em `audit_log` e `profiles` retorna vazio.
+- [ ] Sem login: `select` em `audit_log` e `profiles` falha com permission denied (42501).
 - [ ] `insert` de oferta com `price_30 = 0` ou `subtitle` com 23 caracteres falha no banco.
 - [ ] Upload de PNG ou de webp com 300 KB no bucket falha.
 - [ ] Todo update em `offers` gera linha em `audit_log` com `old_data` e `new_data`.

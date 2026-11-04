@@ -9,7 +9,7 @@ on conflict (slug) do nothing;
 
 insert into public.flavors (slug, name, abv, ibu, description, ideal_for, badge, badge_color, image_path, sort_order) values
   ('pilsen', 'Chopp Pilsen', 4.5, 12, 'Leve, refrescante e muito cremoso. O clássico indispensável para qualquer churrasco ou celebração.', 'Churrascos, festas e reuniões familiares.', 'MAIS PEDIDO', 'amber', null, 1),
-  ('escuro', 'Chopp Escuro', 4.8, 15, 'Notas sutilmente adocicadas e maltes torrados. Ideal para quem aprecia um chopp marcante e harmonioso.', 'Noites frias, carnes e eventos noturnos.', 'SABOR INCORPADO', 'amber', null, 2),
+  ('escuro', 'Chopp Escuro', 4.8, 15, 'Notas sutilmente adocicadas e maltes torrados. Ideal para quem aprecia um chopp marcante e harmonioso.', 'Noites frias, carnes e eventos noturnos.', 'SABOR ENCORPADO', 'amber', null, 2),
   ('puro-malte', 'Chopp Puro Malte', 5, 18, 'Feito exclusivamente com malte de cevada e lúpulos selecionados. Amargor equilibrado e aroma inconfundível.', 'Apreciadores de cerveja puro malte.', '100% MALTE', 'emerald', null, 3),
   ('ipa', 'Chopp IPA', 6.2, 45, 'Para amantes de lúpulo intenso! Aromas cítricos, amargor presente e colarinho denso e persistente.', 'Hambúrgueres gourmet e carnes nobres.', 'LUPULADO PREMIUM', 'yellow', null, 4),
   ('vinho', 'Chopp de Vinho', 5.5, 8, 'A combinação perfeita entre a leveza do chopp e o sabor marcante do vinho tinto de mesa. Doce e refrescante.', 'Recepções, festas e comemorações.', 'SUCESSO DAS FESTAS', 'purple', null, 5)

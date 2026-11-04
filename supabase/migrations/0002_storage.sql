@@ -12,3 +12,7 @@ create policy catalog_staff_insert on storage.objects for insert to authenticate
 create policy catalog_staff_update on storage.objects for update to authenticated
   using (bucket_id = 'catalog' and public.my_role() is not null)
   with check (bucket_id = 'catalog' and public.my_role() is not null);
+
+-- select para a equipe (exigido pelo upload com upsert)
+create policy catalog_staff_select on storage.objects for select to authenticated
+  using (bucket_id = 'catalog' and public.my_role() is not null);
