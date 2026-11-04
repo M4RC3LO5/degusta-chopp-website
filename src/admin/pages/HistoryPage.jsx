@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '../supabase';
+import { useAuth } from '../auth/AuthContext';
+import PurgePanel from './history/PurgePanel';
 import { loadStaffNames } from '../staffNames';
 import { HISTORY_TYPES, describeChange } from '../historyDiff';
 import { inputClass } from './catalog/fields';
@@ -16,6 +19,8 @@ const startOfDay = (d) => new Date(`${d}T00:00:00`).toISOString();
 const startOfNextDay = (d) => { const x = new Date(`${d}T00:00:00`); x.setDate(x.getDate() + 1); return x.toISOString(); };
 
 export default function HistoryPage() {
+  const { profile } = useAuth();
+  const location = useLocation();
   const [filters, setFilters] = useState({ person: '', type: 'all', from: '', to: '' });
   const [page, setPage] = useState(0);
   const [rows, setRows] = useState([]);
@@ -77,6 +82,8 @@ export default function HistoryPage() {
   return (
     <section className="space-y-5">
       <h1 className="text-xl font-extrabold text-amber-300">Histórico</h1>
+
+      {profile.role === 'dono' && ctxReady && <PurgePanel ctx={ctx} defaultOpen={Boolean(location.state?.abrirExclusao)} onPurged={load} />}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 rounded-2xl bg-[#142718] border border-emerald-900/60 p-3">
         <label className="text-xs font-bold uppercase tracking-wider text-amber-400 space-y-1">Pessoa

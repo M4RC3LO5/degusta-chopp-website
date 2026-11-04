@@ -23,6 +23,7 @@ export function AuthProvider({ children }) {
   const goAnon = useCallback((message) => {
     lastPassword.current = null;
     passwordUpdated.current = false;
+    try { sessionStorage.removeItem('dc_retention_seen'); } catch { /* sem storage */ }
     if (message) setNotice(message);
     setState({ status: 'anon', session: null, profile: null });
   }, []);
