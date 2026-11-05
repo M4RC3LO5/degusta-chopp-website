@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Espelho de ponto no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0a160d}
+a{color:#fbbf24}a:hover{color:#fde68a}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 1240px; box-sizing: border-box; background: #0a160d; color: #e7efe8; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 8px 10px 4px; border-bottom: 1px solid #1b321f">
+    <a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 10px; font-size: 14px; font-weight: 700; text-decoration: none">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Ponto
+    </a>
+    <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 12px; background: #142718; border: 1px solid #234129; color: #fbbf24; font-family: inherit; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; cursor: pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+      Exportar
+    </button>
+  </header>
+
+  <main style="display: flex; flex-direction: column; gap: 16px; padding: 18px 16px 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #fef3c7">Espelho de ponto</h1>
+      <p style="margin: 0; font-size: 13px; color: #9fb8a5">Controle interno · horários do servidor</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <label for="colab" style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #9fb8a5">COLABORADOR</label>
+      <select id="colab" style="min-height: 48px; border-radius: 14px; background: #142718; border: 1px solid #234129; color: #e7efe8; font-family: inherit; font-size: 15px; font-weight: 600; padding: 0 12px">
+        <option>Carlos Souza</option>
+        <option>Todos os colaboradores</option>
+      </select>
+      <div style="display: flex; align-items: center; justify-content: space-between; min-height: 48px; border-radius: 14px; background: #142718; border: 1px solid #234129; padding: 0 4px">
+        <button type="button" aria-label="Mês anterior" style="width: 44px; height: 44px; border: 0; background: transparent; color: #fbbf24; cursor: pointer; display: flex; align-items: center; justify-content: center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <span style="font-size: 15px; font-weight: 800">Novembro de 2026</span>
+        <button type="button" aria-label="Próximo mês" style="width: 44px; height: 44px; border: 0; background: transparent; color: #5f7d66; cursor: pointer; display: flex; align-items: center; justify-content: center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="padding: 14px; border-radius: 18px; background: #142718; border: 1px solid #234129; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #9fb8a5">HORAS NO MÊS</span>
+        <span style="font-size: 28px; font-weight: 800; color: #fef3c7; font-variant-numeric: tabular-nums">23h 23</span>
+      </div>
+      <div style="padding: 14px; border-radius: 18px; background: #142718; border: 1px solid #234129; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #9fb8a5">MÉDIA DIA COMPLETO</span>
+        <span style="font-size: 28px; font-weight: 800; color: #fef3c7; font-variant-numeric: tabular-nums">8h 00</span>
+      </div>
+      <div style="padding: 14px; border-radius: 18px; background: #142718; border: 1px solid #234129; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #9fb8a5">DIAS TRABALHADOS</span>
+        <span style="font-size: 28px; font-weight: 800; color: #fef3c7">4</span>
+      </div>
+      <div style="padding: 14px; border-radius: 18px; background: rgba(251,146,60,0.10); border: 1px solid rgba(251,146,60,0.45); display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #fdba74">PARA CONFERIR</span>
+        <span style="font-size: 28px; font-weight: 800; color: #fed7aa">3</span>
+      </div>
+    </div>
+
+    <div role="tablist" aria-label="Filtro" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 4px; border-radius: 14px; background: #0f1f12; border: 1px solid #1b321f">
+      <button type="button" role="tab" aria-selected="true" style="min-height: 40px; border: 0; border-radius: 10px; background: #f59e0b; color: #1a1205; font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer">Todos</button>
+      <button type="button" role="tab" aria-selected="false" style="min-height: 40px; border: 0; border-radius: 10px; background: transparent; color: #cfe3d3; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer">Para conferir</button>
+      <button type="button" role="tab" aria-selected="false" style="min-height: 40px; border: 0; border-radius: 10px; background: transparent; color: #cfe3d3; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer">Incompletos</button>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; padding: 0 4px; font-size: 11px; font-weight: 600; color: #8aa592; font-variant-numeric: tabular-nums">
+      <span>06h</span><span>12h</span><span>18h</span><span>24h</span>
+    </div>
+
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{days}}" as="d" hint-placeholder-count="4">
+        <li style="padding: 14px; border-radius: 18px; background: #142718; border: 1px solid {{d.border}}; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <div style="display: flex; align-items: baseline; gap: 8px">
+              <span style="font-size: 17px; font-weight: 800; color: #fef3c7">{{d.date}}</span>
+              <span style="font-size: 13px; font-weight: 600; color: #9fb8a5">{{d.weekday}}</span>
+            </div>
+            <span style="font-size: 17px; font-weight: 800; color: {{d.totalColor}}; font-variant-numeric: tabular-nums">{{d.total}}</span>
+          </div>
+          <div aria-hidden="true" style="position: relative; height: 12px; border-radius: 999px; background: #0a160d; border: 1px solid #1b321f; overflow: hidden">
+            <sc-for list="{{d.segs}}" as="s" hint-placeholder-count="2">
+              <span style="position: absolute; top: 0; bottom: 0; left: {{s.left}}; width: {{s.width}}; background: {{s.color}}; border-radius: 999px"></span>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{d.marks}}" as="m" hint-placeholder-count="4">
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #8aa592">{{m.label}}</span>
+                <span style="font-size: 14px; font-weight: 700; color: {{m.color}}; font-variant-numeric: tabular-nums">{{m.time}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{d.hasFlags}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{d.flags}}" as="f" hint-placeholder-count="1">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: {{f.bg}}; color: {{f.color}}; border: 1px solid {{f.border}}">{{f.text}}</span>
+              </sc-for>
+            </div>
+          </sc-if>
+        </li>
+      </sc-for>
+    </ul>
+
+    <div style="display: flex; gap: 14px; flex-wrap: wrap; padding: 4px; font-size: 12px; font-weight: 600; color: #b9cfbf">
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 8px; border-radius: 999px; background: #4ade80"></span>Trabalhado</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 8px; border-radius: 999px; background: #f59e0b"></span>Em andamento</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 8px; border-radius: 999px; background: #fb923c"></span>Sem saída</span>
+    </div>
+
+    <a href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 14px; border: 1px solid #234129; color: #9fb8a5; font-size: 13px; font-weight: 700; text-decoration: none">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+      Arquivo e meses antigos
+    </a>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const toH = (t) => { const [h, m] = t.split(':').map(Number); return h + m / 60; };
+    const seg = (a, b, color) => {
+      const s = Math.max(6, toH(a)), e = Math.min(24, toH(b));
+      return { left: ((s - 6) / 18 * 100).toFixed(2) + '%', width: ((e - s) / 18 * 100).toFixed(2) + '%', color };
+    };
+    const ok = '#4ade80', live = '#f59e0b', warn = '#fb923c';
+    const mk = (e, i, f, s, sColor) => ([
+      { label: 'ENTRADA', time: e, color: '#e7efe8' },
+      { label: 'INTERVALO', time: i, color: '#e7efe8' },
+      { label: 'RETORNO', time: f, color: '#e7efe8' },
+      { label: 'SAÍDA', time: s, color: sColor || '#e7efe8' }
+    ]);
+    const flag = (text, tone) => tone === 'warn'
+      ? { text, bg: 'rgba(251,146,60,0.12)', color: '#fed7aa', border: 'rgba(251,146,60,0.45)' }
+      : { text, bg: 'rgba(125,211,252,0.10)', color: '#bae6fd', border: 'rgba(125,211,252,0.40)' };
+    const days = [
+      { date: '05/11', weekday: 'qui · hoje', total: '3h 18', totalColor: '#fbbf24', border: '#234129',
+        segs: [seg('08:02', '11:20', live)], marks: mk('08:02', '--:--', '--:--', '--:--', '#5f7d66'), flags: [] },
+      { date: '04/11', weekday: 'qua', total: '8h 09', totalColor: '#fef3c7', border: '#234129',
+        segs: [seg('08:02', '12:01', ok), seg('13:00', '17:10', ok)], marks: mk('08:02', '12:01', '13:00', '17:10'), flags: [] },
+      { date: '03/11', weekday: 'ter', total: '7h 52', totalColor: '#fef3c7', border: 'rgba(125,211,252,0.40)',
+        segs: [seg('08:15', '12:00', ok), seg('12:58', '17:05', ok)], marks: mk('08:15', '12:00', '12:58', '17:05*'),
+        flags: [flag('Saída lançada como esquecimento', 'info')] },
+      { date: '02/11', weekday: 'seg', total: '4h 04 + ?', totalColor: '#fed7aa', border: 'rgba(251,146,60,0.45)',
+        segs: [seg('07:58', '12:02', ok), seg('13:01', '14:30', warn)], marks: mk('07:58*', '12:02', '13:01', 'faltou', '#fb923c'),
+        flags: [flag('Sem saída', 'warn'), flag('Entrada a 14 km da loja', 'warn')] }
+    ].map(d => ({ ...d, hasFlags: d.flags.length > 0 }));
+    return { days };
+  }
+}
+</script>
+</body>
+</html>
