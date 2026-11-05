@@ -4,16 +4,16 @@ import { canAccess, homePathForRole, navLayout } from './rules.js';
 
 const paths = (list) => list.map(r => r.path);
 
-test('barra inferior: até 5 itens ficam todos visíveis; com 6+ os menos usados vão para "Mais"', () => {
-  // Ordem pedida no Card 12: Marcas, Sabores, Preços, Ponto; o resto em "Mais".
-  assert.deepEqual(paths(navLayout('operador').primary), ['marcas', 'sabores', 'precos', 'ponto']);
-  assert.deepEqual(navLayout('operador').more, []);
+test('barra inferior: Marcas, Sabores, Preços, Ponto + "Mais" (Card 13: todos os perfis têm "Privacidade do ponto" em Mais)', () => {
+  const operador = navLayout('operador');
+  assert.deepEqual(paths(operador.primary), ['marcas', 'sabores', 'precos', 'ponto']);
+  assert.deepEqual(paths(operador.more), ['privacidade-ponto']);
   const gerente = navLayout('gerente');
   assert.deepEqual(paths(gerente.primary), ['marcas', 'sabores', 'precos', 'ponto']);
-  assert.deepEqual(paths(gerente.more), ['config', 'historico']);
+  assert.deepEqual(paths(gerente.more), ['privacidade-ponto', 'config', 'historico']);
   const dono = navLayout('dono');
   assert.deepEqual(paths(dono.primary), ['marcas', 'sabores', 'precos', 'ponto']);
-  assert.deepEqual(paths(dono.more), ['config', 'historico', 'usuarios']);
+  assert.deepEqual(paths(dono.more), ['privacidade-ponto', 'config', 'historico', 'usuarios']);
 });
 
 test('Catálogo separado: Marcas e Sabores com as mesmas permissões de antes; /catalogo não é rota da barra', () => {
@@ -39,4 +39,8 @@ test('Ponto fica visível para todos; espelho só dono/gerente, sem item na barr
   assert.equal(canAccess('operador', 'ponto/espelho'), false);
   for (const role of ['dono', 'gerente']) assert.ok(!paths([...navLayout(role).primary, ...navLayout(role).more]).includes('ponto/espelho'));
   assert.equal(homePathForRole('operador'), 'precos');
+});
+
+test('Privacidade do ponto: todo perfil acessa', () => {
+  for (const role of ['dono', 'gerente', 'operador']) assert.ok(canAccess(role, 'privacidade-ponto'), role);
 });

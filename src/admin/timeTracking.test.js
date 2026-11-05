@@ -6,7 +6,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   allowedNext, buildMirror, buildTimeCsv, formatDuration, localInputToIso, mirrorCsv, mirrorFetchRange, mirrorFileName,
-  mirrorTable, nextStep, spDateKey, spTime, validateForgot, entryFlags, pontoErrorMessage
+  mirrorTable, nextStep, spDateKey, spTime, validateForgot, entryFlags, pontoErrorMessage,
+  analyzeDay, barGeometry, dayOccurrences, filterDays, formatDistance, formatHM, mirrorSummary, monthLongLabel, pendingInfo, shiftMonth, todayHeading, todayView
 } from './timeTracking.js';
 import { buildPdf } from './pdf.js';
 import { parseCoord } from './settingsRules.js';
@@ -128,4 +129,126 @@ test('utilidades', () => {
   assert.equal(mirrorFileName('Ana Çarvalho', '2026-11', 'csv'), 'espelho-ponto-ana-carvalho-2026-11.csv');
   assert.equal(pontoErrorMessage({ code: '22023', message: 'O horário não pode estar no futuro.' }), 'O horário não pode estar no futuro.');
   assert.match(pontoErrorMessage({ code: 'XX' }), /Não foi possível/);
+});
+
+// ---------- Card 13: redesenho ----------
+const NOW = Date.parse('2026-11-05T11:20:14-03:00');   // qui 05/11 (hoje)
+
+test('formatos de tela: "3h 18", distância, mês por extenso, setas do mês', () => {
+  assert.equal(formatHM(Date.parse('2026-11-05T11:20:00-03:00') - Date.parse('2026-11-05T08:02:00-03:00')), '3h 18');
+  assert.equal(formatHM(0), '0h 00');
+  assert.equal(formatDistance(420), '420 m');
+  assert.equal(formatDistance(1001), '1,0 km');
+  assert.equal(formatDistance(14200), '14 km');
+  assert.equal(monthLongLabel('2026-11'), 'Novembro de 2026');
+  assert.equal(shiftMonth('2026-01', -1), '2025-12');
+  assert.equal(shiftMonth('2026-12', 1), '2027-01');
+  assert.equal(todayHeading('2026-11-05'), 'qui, 5 de novembro');
+});
+
+test('Ponto: em expediente, trabalhado hoje ao vivo e etapas (feita ✓, próxima, pendente)', () => {
+  const v = todayView([e('entrada', '2026-11-05 08:02')], NOW);
+  assert.equal(v.status, 'expediente');
+  assert.equal(formatHM(v.workedMs), '3h 18');
+  assert.deepEqual(v.steps.map(s => [s.label, s.state]), [['Entrada', 'done'], ['Intervalo', 'next'], ['Retorno', 'pending'], ['Saída', 'pending']]);
+  assert.equal(v.step.suggested, 'intervalo_inicio');
+});
+
+test('Ponto: em intervalo, depois do retorno e fora do expediente após a saída', () => {
+  const brk = todayView([e('entrada', '2026-11-05 08:02'), e('intervalo_inicio', '2026-11-05 10:00')], NOW);
+  assert.equal(brk.status, 'intervalo');
+  assert.equal(formatHM(brk.workedMs), '1h 58');           // o intervalo não conta
+  assert.equal(brk.steps.find(s => s.kind === 'intervalo_fim').state, 'next');
+  const back = todayView([e('entrada', '2026-11-05 08:02'), e('intervalo_inicio', '2026-11-05 10:00'), e('intervalo_fim', '2026-11-05 10:30')], NOW);
+  assert.equal(back.status, 'expediente');
+  assert.equal(formatHM(back.workedMs), '2h 48');
+  assert.equal(back.steps.find(s => s.kind === 'saida').state, 'next');
+  const done = todayView([e('entrada', '2026-11-05 08:02'), e('saida', '2026-11-05 10:02')], NOW);
+  assert.equal(done.status, 'fora');
+  assert.ok(done.steps.every(s => s.state === 'done' || s.state === 'pending'));   // nada em dourado: o dia terminou
+  assert.equal(done.steps.some(s => s.state === 'next'), false);
+});
+
+test('Ponto: sem marcação hoje = fora do expediente; dia anterior sem saída gera o alerta', () => {
+  const empty = todayView([], NOW);
+  assert.equal(empty.status, 'fora');
+  assert.equal(empty.hasMarks, false);
+  assert.equal(empty.step.suggested, 'entrada');
+  const prev = todayView([e('entrada', '2026-11-04 08:00'), e('intervalo_inicio', '2026-11-04 12:00'), e('intervalo_fim', '2026-11-04 22:20')], NOW);
+  assert.equal(prev.hasMarks, false);
+  const p = pendingInfo(prev.step, NOW);
+  assert.equal(p.title, 'Ontem ficou sem Saída');
+  assert.equal(p.detail, 'Quarta, 04/11 — última marcação: Fim do intervalo às 22:20.');
+  assert.equal(p.kind, 'saida');
+  assert.equal(p.whenLocal, '2026-11-04T22:21');           // abre o esquecimento já com a data do dia
+  assert.equal(pendingInfo(todayView([], NOW).step, NOW), null);
+  // dois dias atrás: título com a data; 23:59 é o teto do mesmo dia
+  const old = todayView([e('entrada', '2026-11-03 23:59')], NOW);
+  assert.equal(pendingInfo(old.step, NOW).title, '03/11 ficou sem Saída');
+  assert.equal(pendingInfo(old.step, NOW).whenLocal, '2026-11-03T23:59');
+  // último registro = início do intervalo: o próximo passo válido é o Fim do intervalo
+  assert.equal(pendingInfo(todayView([e('entrada', '2026-11-04 08:00'), e('intervalo_inicio', '2026-11-04 12:00')], NOW).step, NOW).kind, 'intervalo_fim');
+});
+
+const mirrorDays = (list, month = '2026-11') => buildMirror(list, month).days.map(d => analyzeDay(d, NOW));
+
+test('Espelho: dia completo, hoje em andamento, sem saída e ocorrências (igual ao protótipo)', () => {
+  const days = mirrorDays([
+    e('entrada', '2026-11-05 08:02'),
+    e('entrada', '2026-11-04 08:02'), e('intervalo_inicio', '2026-11-04 12:01'), e('intervalo_fim', '2026-11-04 13:00'), e('saida', '2026-11-04 17:10'),
+    e('entrada', '2026-11-03 08:15'), e('intervalo_inicio', '2026-11-03 12:00'), e('intervalo_fim', '2026-11-03 12:58'),
+    e('saida', '2026-11-03 17:05', { source: 'esquecimento', claimed_at: new Date(Date.parse('2026-11-03T17:05:00-03:00')).toISOString(), reason: 'saí sem marcar, celular sem bateria', within_radius: null, distance_m: null }),
+    e('entrada', '2026-11-02 07:58', { within_radius: false, distance_m: 14200 }), e('intervalo_inicio', '2026-11-02 12:02'), e('intervalo_fim', '2026-11-02 13:01')
+  ]);
+  const by = Object.fromEntries(days.map(d => [d.date, d]));
+  assert.equal(by['2026-11-05'].state, 'andamento');
+  assert.equal(formatHM(by['2026-11-05'].liveMs), '3h 18');
+  assert.deepEqual(by['2026-11-05'].segments.map(s => s.kind), ['live']);
+  assert.equal(by['2026-11-04'].state, 'completo');
+  assert.equal(formatHM(by['2026-11-04'].workedMs), '8h 09');
+  assert.equal(by['2026-11-02'].state, 'sem_saida');
+  assert.equal(formatHM(by['2026-11-02'].liveMs), '4h 04');   // só o que fechou
+  assert.deepEqual(by['2026-11-02'].segments.map(s => s.kind), ['ok', 'warn']);
+  assert.deepEqual(by['2026-11-02'].occurrences.map(o => o.text), ['Sem saída', 'Entrada a 14 km da loja']);
+  assert.deepEqual(by['2026-11-03'].occurrences.map(o => [o.tone, o.text]), [['info', 'Esquecimento (Saída): “saí sem marcar, celular sem bateria”']]);
+  assert.deepEqual(by['2026-11-04'].occurrences, []);
+  assert.deepEqual(by['2026-11-04'].breaks.map(b => [spTime(b.startMs), spTime(b.endMs)]), [['12:01', '13:00']]);
+  // marcação esquecida: `forgot`; fora do raio: `loc` (laranja), nunca os dois no mesmo asterisco
+  assert.equal(by['2026-11-03'].marks[3].items[0].forgot, true);
+  assert.equal(by['2026-11-02'].marks[0].items[0].loc, true);
+  // totais: 23h 23 no mês, média dos dias completos, para conferir = nº de ocorrências
+  const sum = mirrorSummary(days);
+  assert.equal(formatHM(sum.workedMs), '23h 23');
+  assert.equal(formatHM(sum.avgDayMs), '8h 01');   // (8h09 + 7h52) / 2 = 8h00,5 -> arredonda
+  assert.equal(formatHM(sum.avgBreakMs), '0h 59');
+  assert.equal(sum.toCheck, 3);
+  assert.equal(sum.incomplete, 1);
+  // filtros
+  assert.deepEqual(filterDays(days, 'todos').length, 4);
+  assert.deepEqual(filterDays(days, 'conferir').map(d => d.date).sort(), ['2026-11-02', '2026-11-03']);
+  assert.deepEqual(filterDays(days, 'incompletos').map(d => d.date), ['2026-11-02']);
+});
+
+test('Espelho: sem localização vira ocorrência; média vazia quando não há dia completo', () => {
+  const days = mirrorDays([e('entrada', '2026-11-05 08:00', { within_radius: null, distance_m: null })]);
+  assert.deepEqual(days[0].occurrences.map(o => o.text), ['Entrada sem localização']);
+  const sum = mirrorSummary(days);
+  assert.equal(sum.avgDayMs, null);
+  assert.equal(sum.avgBreakMs, null);
+});
+
+test('linha do tempo 06h–24h: posição e corte nas pontas', () => {
+  const g = barGeometry({ startMs: Date.parse('2026-11-04T12:00:00-03:00'), endMs: Date.parse('2026-11-04T15:00:00-03:00') }, '2026-11-04');
+  assert.equal(g.left, 33.33333333333333);
+  assert.equal(Math.round(g.width * 100) / 100, 16.67);
+  const early = barGeometry({ startMs: Date.parse('2026-11-04T05:00:00-03:00'), endMs: Date.parse('2026-11-04T07:00:00-03:00') }, '2026-11-04');
+  assert.equal(early.left, 0);
+  assert.equal(Math.round(early.width * 100) / 100, 5.56);   // só 06h–07h
+  assert.equal(barGeometry({ startMs: Date.parse('2026-11-04T03:00:00-03:00'), endMs: Date.parse('2026-11-04T05:00:00-03:00') }, '2026-11-04'), null);
+});
+
+test('dayOccurrences: hoje em aberto não é "sem saída"', () => {
+  const list = [e('entrada', '2026-11-05 08:00')];
+  assert.deepEqual(dayOccurrences(list, '2026-11-05', NOW), []);
+  assert.deepEqual(dayOccurrences(list, '2026-11-05', NOW + 86400000).map(o => o.text), ['Sem saída']);
 });

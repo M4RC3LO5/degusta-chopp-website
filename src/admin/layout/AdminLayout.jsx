@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Tag, Beer, Award, Settings, History, Users, Clock, MoreHorizontal, LogOut } from 'lucide-react';
+import { Tag, Beer, Award, Settings, History, Users, Clock, MoreHorizontal, LogOut, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { ROLE_LABELS, navLayout } from '../rules';
 import RetentionNotice from './RetentionNotice';
 
-const ICONS = { award: Award, tag: Tag, beer: Beer, settings: Settings, history: History, users: Users, clock: Clock };
+const ICONS = { award: Award, tag: Tag, beer: Beer, settings: Settings, history: History, users: Users, clock: Clock, shield: ShieldCheck };
 
 const tabClass = (isActive) =>
   `h-16 min-h-[44px] w-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors ${
@@ -17,6 +17,9 @@ export default function AdminLayout({ children }) {
   const { primary, more } = navLayout(profile.role);
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
+  // O espelho de ponto (tabela com linha do tempo) usa a largura do computador.
+  const wide = location.pathname.startsWith('/ponto/espelho');
+  const maxW = wide ? 'max-w-3xl lg:max-w-[1180px]' : 'max-w-3xl lg:max-w-5xl';
   const moreActive = more.some(r => location.pathname === `/${r.path}` || location.pathname.startsWith(`/${r.path}/`));
 
   useEffect(() => { setMoreOpen(false); }, [location.pathname]);
@@ -30,7 +33,7 @@ export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-[#0a160d] text-slate-100 flex flex-col">
       <header className="sticky top-0 z-40 bg-[#0a160d]/95 backdrop-blur border-b border-[#1b321f]">
-        <div className="max-w-3xl lg:max-w-5xl mx-auto h-14 px-4 flex items-center justify-between gap-3">
+        <div className={`${maxW} mx-auto h-14 px-4 flex items-center justify-between gap-3`}>
           <div className="min-w-0 flex items-center gap-2.5">
             <img src="/logo/logo-simbolo.webp" alt="" width={32} height={32} className="h-8 w-8 object-contain shrink-0" />
             <div className="min-w-0 leading-tight">
@@ -51,7 +54,7 @@ export default function AdminLayout({ children }) {
 
       {profile.role === 'dono' && <RetentionNotice />}
 
-      <main className="flex-1 w-full max-w-3xl lg:max-w-5xl mx-auto px-4 py-6 pb-28">{children}</main>
+      <main className={`flex-1 w-full ${maxW} mx-auto px-4 py-6 pb-28`}>{children}</main>
 
       {moreOpen && <div className="fixed inset-0 z-40" onClick={() => setMoreOpen(false)} aria-hidden="true" />}
       <nav aria-label="Navegação do admin" className="fixed bottom-0 inset-x-0 z-40 bg-[#0d1c10]/95 backdrop-blur border-t border-[#1b321f] pb-[env(safe-area-inset-bottom)]">

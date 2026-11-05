@@ -65,28 +65,27 @@ export const ROLE_DESCRIPTIONS = {
 export const USERS_NOTICE = 'Mantenha pelo menos 2 usuários com perfil Dono.';
 
 // Rotas do admin (relativas a /admin) e quem pode acessar. Ordem = ordem da barra inferior.
-// `more: true` = vai para o menu "Mais" quando a barra tem 6+ itens. `hidden: true` = existe como rota, sem item na barra.
+// `more: true` = vai para o menu "Mais". `hidden: true` = existe como rota, sem item na barra.
 export const ADMIN_ROUTES = [
   { path: 'marcas', label: 'Marcas', icon: 'award', roles: ['dono', 'gerente', 'operador'] },
   { path: 'sabores', label: 'Sabores', icon: 'beer', roles: ['dono', 'gerente', 'operador'] },
   { path: 'precos', label: 'Preços', icon: 'tag', roles: ['dono', 'gerente', 'operador'] },
   { path: 'ponto', label: 'Ponto', icon: 'clock', roles: ['dono', 'gerente', 'operador'] },
   { path: 'ponto/espelho', label: 'Espelho de ponto', icon: 'clock', roles: ['dono', 'gerente'], hidden: true },
+  { path: 'privacidade-ponto', label: 'Privacidade do ponto', icon: 'shield', roles: ['dono', 'gerente', 'operador'], more: true },
   { path: 'config', label: 'Config.', icon: 'settings', roles: ['dono', 'gerente'], more: true },
   { path: 'historico', label: 'Histórico', icon: 'history', roles: ['dono', 'gerente'], more: true },
   { path: 'usuarios', label: 'Usuários', icon: 'users', roles: ['dono'], more: true }
 ];
 
-export const NAV_MAX_ITEMS = 5;   // 6+ itens: os menos usados vão para "Mais"
-
 export function routesForRole(role) {
   return ADMIN_ROUTES.filter(r => !r.hidden && r.roles.includes(role));
 }
 
-// Barra inferior: { primary, more }. Até 5 itens ficam todos visíveis; com 6+ os `more` vão para "Mais".
+// Barra inferior: { primary, more }. Marcas · Sabores · Preços · Ponto + "Mais" (Card 13: todos os perfis têm
+// "Privacidade do ponto" em "Mais"; Config., Histórico e Usuários seguem lá, por perfil).
 export function navLayout(role) {
   const items = routesForRole(role);
-  if (items.length <= NAV_MAX_ITEMS) return { primary: items, more: [] };
   return { primary: items.filter(r => !r.more), more: items.filter(r => r.more) };
 }
 
