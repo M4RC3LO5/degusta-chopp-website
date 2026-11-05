@@ -3,13 +3,19 @@ import React, { useEffect, useRef } from 'react';
 // Modal simples e acessível: fecha no Esc e ao tocar fora (quando `onClose` é dado).
 export default function Modal({ title, onClose, children, labelledBy = 'modal-title' }) {
   const ref = useRef(null);
+  // onClose muda a cada render do pai (ex.: o relógio do Ponto re-renderiza a cada 1 s).
+  // Guardar em ref evita re-executar o efeito, que roubava o foco e fechava selects/date pickers abertos.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  // Foco no diálogo só ao abrir.
+  useEffect(() => { ref.current?.focus(); }, []);
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape' && onClose) onClose(); };
+    const onKey = (e) => { if (e.key === 'Escape' && onCloseRef.current) onCloseRef.current(); };
     document.addEventListener('keydown', onKey);
-    ref.current?.focus();
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
