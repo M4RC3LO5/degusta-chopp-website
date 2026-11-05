@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Ponto com pendência</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0a160d}
+a{color:#fbbf24}a:hover{color:#fde68a}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0a160d; color: #e7efe8; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-direction: column; position: relative; overflow: hidden">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #1b321f">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div style="width: 36px; height: 36px; border-radius: 12px; background: #142718; border: 1px solid #234129; display: flex; align-items: center; justify-content: center; color: #fbbf24; font-weight: 800; font-size: 15px">C</div>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 14px; font-weight: 700">Carlos Souza</span>
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #fbbf24">OPERADOR</span>
+      </div>
+    </div>
+    <button type="button" aria-label="Sair" style="width: 44px; height: 44px; border-radius: 12px; background: #142718; border: 1px solid #234129; color: #9fb8a5; display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+    </button>
+  </header>
+
+  <main style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding: 20px 16px 16px">
+
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #fef3c7">Ponto</h1>
+      <span style="font-size: 13px; font-weight: 600; color: #9fb8a5">qui, 5 de novembro</span>
+    </div>
+
+    <section aria-label="Pendência" style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 20px; background: rgba(251,146,60,0.10); border: 1px solid rgba(251,146,60,0.45)">
+      <div style="display: flex; gap: 12px; align-items: flex-start">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 15px; font-weight: 800; color: #fed7aa">Ontem ficou sem Saída</span>
+          <span style="font-size: 13px; line-height: 1.45; color: #e7d3c2">Quarta, 04/11 — última marcação: Fim do intervalo às 22:20.</span>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <button type="button" style="min-height: 44px; border-radius: 12px; border: 0; background: #fb923c; color: #1f0f02; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer">Informar saída</button>
+        <button type="button" style="min-height: 44px; border-radius: 12px; background: transparent; border: 1px solid rgba(251,146,60,0.45); color: #fed7aa; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer">Agora não</button>
+      </div>
+    </section>
+
+    <section aria-label="Situação agora" style="background: #142718; border: 1px solid #234129; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #0f1f12; border: 1px solid #2c4a32; color: #cfe3d3; font-size: 13px; font-weight: 700">
+          <span style="width: 8px; height: 8px; border-radius: 999px; background: #8aa592"></span>
+          Fora do expediente
+        </span>
+        <span style="font-size: 20px; font-weight: 700; color: #e7efe8; font-variant-numeric: tabular-nums">07:58:41</span>
+      </div>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #b9cfbf">Nenhuma marcação hoje. Comece pela entrada.</p>
+    </section>
+
+    <button type="button" style="width: 100%; min-height: 96px; border: 0; border-radius: 24px; background: linear-gradient(180deg, #fbbf24, #f59e0b); color: #1a1205; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; box-shadow: 0 10px 30px rgba(245,158,11,0.25)">
+      <span style="display: inline-flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>
+        Registrar entrada
+      </span>
+      <span style="font-size: 13px; font-weight: 600; color: #5a3d06">Toque uma vez · registra 07:58</span>
+    </button>
+
+    <div style="display: flex; justify-content: center">
+      <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 700; color: #9fb8a5; text-decoration: underline; text-underline-offset: 4px">Esqueci de marcar</a>
+    </div>
+  </main>
+
+  <nav aria-label="Navegação" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid #1b321f; background: #0d1c10; padding: 6px 4px 10px">
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; color: #8aa592; text-decoration: none; font-size: 11px; font-weight: 700">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></svg>Marcas</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; color: #8aa592; text-decoration: none; font-size: 11px; font-weight: 700">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/></svg>Sabores</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; color: #8aa592; text-decoration: none; font-size: 11px; font-weight: 700">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>Preços</a>
+    <a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; color: #fbbf24; text-decoration: none; font-size: 11px; font-weight: 800">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Ponto</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; color: #8aa592; text-decoration: none; font-size: 11px; font-weight: 700">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>Mais</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
