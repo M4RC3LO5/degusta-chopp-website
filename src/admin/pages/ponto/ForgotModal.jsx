@@ -4,9 +4,9 @@ import Modal from '../../components/Modal';
 import { Field, inputClass, primaryBtn } from '../catalog/fields';
 import { FORGOT_DAYS, KINDS, KIND_LABELS, REASON_MAX, isoToLocalInput, pontoErrorMessage, validateForgot } from '../../timeTracking';
 
-// "Lancei esquecimento": horário + motivo, só dos últimos 7 dias. Fica sinalizado no espelho.
-export default function ForgotModal({ getNow, defaultKind, onClose, onDone }) {
-  const [form, setForm] = useState({ kind: defaultKind || 'saida', whenLocal: isoToLocalInput(getNow()), reason: '' });
+// "Esqueci de marcar": horário + motivo, só dos últimos 7 dias. Fica sinalizado no espelho.
+export default function ForgotModal({ getNow, defaultKind, defaultWhenLocal, onClose, onDone }) {
+  const [form, setForm] = useState({ kind: defaultKind || 'saida', whenLocal: defaultWhenLocal || isoToLocalInput(getNow()), reason: '' });
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -28,7 +28,7 @@ export default function ForgotModal({ getNow, defaultKind, onClose, onDone }) {
   const max = isoToLocalInput(getNow());
 
   return (
-    <Modal title="Lancei esquecimento" onClose={busy ? undefined : onClose}>
+    <Modal title="Esqueci de marcar" onClose={busy ? undefined : onClose}>
       <form onSubmit={submit} noValidate className="space-y-4" data-testid="forgot-form">
         <p className="text-xs text-emerald-200/80">Esqueceu de marcar? Informe o horário e o motivo. Vale para os últimos {FORGOT_DAYS} dias e aparece como “Esquecimento” no espelho. Depois de lançada, a marcação não pode ser editada nem apagada.</p>
         <Field id="forgot-kind" label="Marcação" error={errors.kind}>

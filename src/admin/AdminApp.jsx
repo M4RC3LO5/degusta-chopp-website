@@ -11,6 +11,7 @@ import ConfigPage from './pages/ConfigPage';
 import HistoryPage from './pages/HistoryPage';
 import PontoPage from './pages/PontoPage';
 import PontoMirrorPage from './pages/PontoMirrorPage';
+import PrivacyPage from './pages/PrivacyPage';
 import { adminConfigured } from './supabase';
 import { canAccess, homePathForRole } from './rules';
 
@@ -20,6 +21,7 @@ const PAGES = {
   sabores: { title: 'Sabores', card: 6, element: <CatalogPage key="flavor" kind="flavor" /> },
   ponto: { title: 'Ponto', card: 11, element: <PontoPage /> },
   'ponto/espelho': { title: 'Espelho de ponto', card: 11, element: <PontoMirrorPage /> },
+  'privacidade-ponto': { title: 'Privacidade do ponto', card: 13, element: <PrivacyPage /> },
   config: { title: 'Configurações', card: 7, element: <ConfigPage /> },
   historico: { title: 'Histórico', card: 7, element: <HistoryPage /> },
   usuarios: { title: 'Usuários', card: 4, element: <UsersPage /> }
