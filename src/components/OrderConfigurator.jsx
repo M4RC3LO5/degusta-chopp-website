@@ -787,7 +787,7 @@ function OrderConfiguratorInner({ onOpenCalculator, preSelectedType, onClearPreS
               return isDesktop ? content : createPortal(
                 <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none sm:p-4">
                   <div 
-                    className="absolute inset-0 bg-[#0a160d]/80 backdrop-blur-sm pointer-events-auto animate-fadeIn"
+                    className="absolute inset-0 bg-[#0a160d]/60 backdrop-blur-[2px] pointer-events-auto animate-fadeIn"
                     onClick={() => setIsMobileCartOpen(false)}
                   />
                   {content}

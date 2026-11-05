@@ -19,7 +19,7 @@ export default function Modal({ title, onClose, children, labelledBy = 'modal-ti
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
-      <div className="absolute inset-0 bg-[#0a160d]/85 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0a160d]/60 backdrop-blur-[2px]" onClick={onClose} />
       <div
         ref={ref}
         tabIndex={-1}

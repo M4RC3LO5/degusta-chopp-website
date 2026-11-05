@@ -58,7 +58,7 @@ export default function ChoppCalculatorModal({ isOpen, onClose, onOpenWhatsApp }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0a160d]/60 backdrop-blur-[2px] animate-fade-in">
       <div className="relative w-full max-w-lg rounded-3xl bg-[#142718] border-2 border-amber-500/40 p-6 sm:p-8 shadow-neu-gold text-slate-100 max-h-[90vh] overflow-y-auto">
         
         {/* Modal Header */}
