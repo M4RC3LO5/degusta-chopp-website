@@ -16,7 +16,8 @@ import { canAccess, homePathForRole } from './rules';
 
 const PAGES = {
   precos: { title: 'Preços', card: 5, element: <PricesPage /> },
-  catalogo: { title: 'Catálogo', card: 6, element: <CatalogPage /> },
+  marcas: { title: 'Marcas', card: 6, element: <CatalogPage key="brand" kind="brand" /> },
+  sabores: { title: 'Sabores', card: 6, element: <CatalogPage key="flavor" kind="flavor" /> },
   ponto: { title: 'Ponto', card: 11, element: <PontoPage /> },
   'ponto/espelho': { title: 'Espelho de ponto', card: 11, element: <PontoMirrorPage /> },
   config: { title: 'Configurações', card: 7, element: <ConfigPage /> },
@@ -42,6 +43,8 @@ function Routing() {
       <Route path="login" element={<LoginRoute />} />
       <Route element={<RequireAuth />}>
         <Route index element={<Home />} />
+        {/* Card 12: o Catálogo foi separado em Marcas e Sabores; links antigos caem em Marcas */}
+        <Route path="catalogo" element={<Navigate to="/marcas" replace />} />
         {Object.entries(PAGES).map(([path, page]) => (
           <Route
             key={path}

@@ -246,10 +246,13 @@ function OrderConfiguratorInner({ onOpenCalculator, preSelectedType, onClearPreS
 
   // Calculations for totals
   const totalLiters = items.reduce((acc, it) => acc + (it.size * it.qty), 0);
+  // Card 12: o total soma só os itens com preço; itens sem preço ficam "a consultar".
   const totalPrice = items.reduce((acc, it) => {
-    const price = getPrice(it.typeId, it.brandId, it.size, PRICES) || 0;
-    return acc + (price * it.qty);
+    const price = getPrice(it.typeId, it.brandId, it.size, PRICES);
+    return acc + (price === null ? 0 : price * it.qty);
   }, 0);
+  const hasUnpriced = pricesAvailable && items.some(it => getPrice(it.typeId, it.brandId, it.size, PRICES) === null);
+  const hasPriced = items.some(it => getPrice(it.typeId, it.brandId, it.size, PRICES) !== null);
 
   // Helper for keyboard navigation in radio groups
   const handleGroupKeyDown = (e, list, currentSelectedId, onSelect, refMap) => {
@@ -519,7 +522,7 @@ function OrderConfiguratorInner({ onOpenCalculator, preSelectedType, onClearPreS
                   <div className="flex flex-col text-left">
                     <span className="text-sm font-extrabold text-slate-100">{sizeObj.liters} Litros</span>
                     <span className="text-xs font-bold text-amber-400">
-                      {!sizeOffered ? 'Indisponível' : !pricesAvailable ? 'Consultar' : price !== null ? formatPrice(price) : '---'}
+                      {!sizeOffered ? 'Indisponível' : !pricesAvailable ? 'Consultar' : price !== null ? formatPrice(price) : (draft.typeId && draft.brandId) ? 'Valor a consultar' : '---'}
                     </span>
                   </div>
                 </button>
@@ -645,8 +648,8 @@ function OrderConfiguratorInner({ onOpenCalculator, preSelectedType, onClearPreS
                 {items.map(item => {
                 const type = TYPES.find(t => t.id === item.typeId);
                 const brand = BRANDS.find(b => b.id === item.brandId);
-                const unitPrice = getPrice(item.typeId, item.brandId, item.size, PRICES) || 0;
-                const lineSubtotal = unitPrice * item.qty;
+                const unitPrice = getPrice(item.typeId, item.brandId, item.size, PRICES);
+                const lineSubtotal = unitPrice === null ? null : unitPrice * item.qty;
 
                 return (
                   <div
@@ -676,8 +679,8 @@ function OrderConfiguratorInner({ onOpenCalculator, preSelectedType, onClearPreS
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="font-extrabold text-amber-400 text-sm">
-                        {pricesAvailable ? formatPrice(lineSubtotal) : 'Consultar'}
+                      <span className="font-extrabold text-amber-400 text-sm text-right">
+                        {!pricesAvailable ? 'Consultar' : lineSubtotal === null ? <span className="text-xs leading-tight block max-w-[5.5rem]">Valor a consultar</span> : formatPrice(lineSubtotal)}
                       </span>
 
                       {/* Item Stepper */}
@@ -733,9 +736,16 @@ function OrderConfiguratorInner({ onOpenCalculator, preSelectedType, onClearPreS
                 <span className="font-extrabold text-amber-300">{totalLiters}L</span>
               </div>
               {pricesAvailable ? (
-                <div className="flex items-center justify-between text-base">
-                  <span className="font-black text-slate-100">Valor Total:</span>
-                  <span className="text-xl font-black text-amber-400">{formatPrice(totalPrice)}</span>
+                <div>
+                  <div className="flex items-center justify-between text-base">
+                    <span className="font-black text-slate-100">Valor Total:</span>
+                    <span className={`${hasPriced || !hasUnpriced ? 'text-xl' : 'text-base'} font-black text-amber-400`} data-testid="total-value">
+                      {hasPriced || !hasUnpriced ? formatPrice(totalPrice) : 'Valor a consultar'}
+                    </span>
+                  </div>
+                  {hasUnpriced && hasPriced && (
+                    <p className="text-xs font-bold text-amber-300/90 text-right mt-1" data-testid="total-extra">+ itens com valor a consultar</p>
+                  )}
                 </div>
               ) : (
                 <p className="text-xs font-bold text-amber-300/90 text-center">Valores a confirmar pelo WhatsApp</p>

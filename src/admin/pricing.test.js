@@ -19,7 +19,7 @@ test('máscara: dígitos, milhar, vírgula decimal (2 casas), ponto nunca é dec
   assert.equal(maskPriceInput(''), '');
 });
 
-test('parse: vazio = indisponível; 0, -5 e 9999 são recusados com mensagem clara', () => {
+test('parse: vazio = valor a consultar; 0, -5 e 9999 são recusados com mensagem clara', () => {
   assert.deepEqual(parsePriceText(''), { value: null, error: '' });
   assert.equal(parsePriceText('590,5').value, 590.5);
   assert.equal(parsePriceText('1.234,56').value, 1234.56);
@@ -42,8 +42,10 @@ test('texto <-> número e finalização dos centavos', () => {
   assert.equal(finalizePriceText(''), '');
 });
 
-test('validateOffer: oferta ativa sem preço bloqueia; inativa sem preço é permitida; um tamanho só é válido', () => {
-  assert.ok(validateOffer({ subtitle: 'x', text30: '', text50: '', active: true }).errors.prices);
+test('validateOffer: os dois preços podem ficar vazios (valor a consultar); um tamanho só é válido', () => {
+  const empty = validateOffer({ subtitle: 'x', text30: '', text50: '', active: true });
+  assert.deepEqual(empty.errors, {});
+  assert.deepEqual(empty.values, { subtitle: 'x', price_30: null, price_50: null, active: true });
   assert.equal(validateOffer({ subtitle: 'x', text30: '', text50: '', active: false }).errors.prices, undefined);
   const one = validateOffer({ subtitle: ' Só 50L ', text30: '', text50: '700', active: true });
   assert.deepEqual(one.errors, {});

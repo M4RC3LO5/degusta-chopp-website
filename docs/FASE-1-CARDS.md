@@ -17,13 +17,16 @@
 | Exclusão | Nada é apagado. Tudo tem `active`. Usuário só é desativado |
 | Auditoria | Trigger em toda tabela editável: quem, quando, antes, depois |
 | Fallback | Se o Supabase falhar/pausar, o site mostra o catálogo **sem preços** e o orçamento vai ao WhatsApp como "valores a confirmar". Nunca exibe preço desatualizado |
+| Preço vazio (Card 12) | Oferta ativa pode ficar **sem preço** (um tamanho ou os dois). O site mostra "Valor a consultar" (não é o fallback: lá continua "Consultar"). Sabor com todas as ofertas sem preço aparece normalmente |
+| Oferta sem toggle (Card 12) | Não existe Ativa/Inativa na tela de Preços. A linha está no site; "Remover deste sabor" grava `active = false` (com confirmação e Desfazer de 10 s) e "Adicionar marca a este sabor" reativa a mesma linha |
+| Catálogo separado (Card 12) | Marcas (`/admin/marcas`) e Sabores (`/admin/sabores`) são telas separadas; `/admin/catalogo` redireciona para Marcas. Tela inicial após o login continua `/admin/precos` |
 
 ### Permissões (Fase 1)
 
 | Área | dono | gerente | operador |
 |---|---|---|---|
 | Preços de venda | ✅ | ✅ | ✅ |
-| Catálogo (marcas, sabores, imagens) | ✅ | ✅ | ✅ |
+| Marcas, Sabores e imagens (antes "Catálogo") | ✅ | ✅ | ✅ |
 | Configurações do site | ✅ | ✅ | ❌ |
 | Histórico (auditoria) | ✅ | ✅ | ❌ |
 | Usuários | ✅ | ❌ | ❌ |
@@ -257,10 +260,11 @@ grant execute on function public.complete_password_change() to authenticated;
 2. `catalogRepository.loadCatalog()`: busca brands, flavors, offers e settings ativos. Retorna **o mesmo formato** que `products.js` exporta hoje (`BRANDS`, `TYPES`, `PRICES`, `PROMO_MIN_LITERS`, whatsapp) + flag `pricesAvailable`. Timeout de 3 s.
    - Em erro ou timeout → usa `products.js` (textos, imagens, contatos) com `pricesAvailable = false` e loga `console.warn('[catalog] fallback')`.
    - Modo fallback: catálogo e configurador funcionam, mas **sem valores**. Preço vira "Consultar". Total some. A mensagem do WhatsApp lista os itens com a linha `Valores a confirmar`.
+  - **Preço vazio em oferta ativa (Card 12, não é fallback):** a oferta continua nos dois tamanhos e o valor `null` vira **"Valor a consultar"** (catálogo e configurador). O configurador deixa o tamanho selecionável; o total soma só os itens com preço e, havendo item sem preço, mostra "+ itens com valor a consultar" (se **nenhum** item tem preço, mostra "Valor a consultar", sem R$ 0,00). No WhatsApp a linha do item traz "Valor a consultar" e `*Valor:*` = soma dos itens com preço + "(+ itens a consultar)" (ou "Valor a consultar" se nenhum tem).
 3. Prover via `CatalogContext` no `App.jsx`. `Catalog`, `OrderConfigurator` e `whatsapp.js` passam a ler do contexto, não do import direto. `getPrice` e `formatPrice` continuam puros.
 4. Enquanto carrega: skeleton nos cards (sem layout shift).
 5. Imagens: URL pública do bucket. `onError` da `<img>` → imagem local de `public/`.
-6. Sabor sem nenhuma oferta ativa **não aparece**. Marca inativa some de todos os sabores.
+6. Sabor sem nenhuma oferta ativa **não aparece**. Marca inativa some de todos os sabores. Oferta ativa **sem preço aparece** (Card 12).
 7. `vercel.json`:
    ```json
    {
@@ -301,7 +305,7 @@ grant execute on function public.complete_password_change() to authenticated;
    - Indicador de força.
    - `auth.updateUser({ password })` → `rpc('complete_password_change')`.
 5. **Guard:** sem sessão → login; `profiles.active = false` → `signOut` + mensagem; rota sem permissão → volta para a home do perfil.
-6. **Home por perfil:** operador → Preços; gerente e dono → Preços. Na Fase 2 muda para Dashboard.
+6. **Home por perfil:** operador → Preços; gerente e dono → Preços (fixo em `/admin/precos`, mesmo depois que a barra passou a começar por Marcas — Card 12). Na Fase 2 muda para Dashboard.
 7. **Layout mobile-first:** barra inferior com ícones (Preços, Catálogo, Config., Histórico, Usuários), filtrada por perfil. Topo com nome e "Sair". Mesma identidade visual do site.
 8. **PWA**
    - Manifest: `name` "Degusta Admin", `start_url` `/admin`, `scope` `/admin`, `display` `standalone`, ícones 192/512.
@@ -355,28 +359,30 @@ grant execute on function public.complete_password_change() to authenticated;
 **Objetivo:** a tela mais usada. Editar preço em 2 toques.
 
 **Layout**
-- **Mobile:** um bloco por sabor (accordion). Dentro, uma linha por marca: logo, subtítulo, campos 30L e 50L e toggle de ativo.
-- **Desktop:** tabela sabor × marca.
+- **Mobile:** um bloco por sabor (accordion). Dentro, uma linha por **oferta ativa**: logo, subtítulo, campos 30L e 50L, **Salvar** e **Remover deste sabor**. (Card 12: sem toggle Ativa/Inativa.)
+- **Desktop:** tabela sabor × marca (marca, subtítulo, 30L, 50L, ações).
 
 **Regras**
-- **Campo de preço:** máscara BRL, teclado numérico (`inputmode="decimal"`), aceita vazio (= tamanho indisponível), > 0 e ≤ 5.000.
+- **Campo de preço:** máscara BRL, teclado numérico (`inputmode="decimal"`), aceita vazio (= **"Valor a consultar"** no site; os **dois** preços podem ficar vazios), > 0 e ≤ 5.000 quando preenchido.
 - **Variação > 30%** do valor salvo → confirmação: "Era R$ 590,00, agora R$ 59,00. Confirma?"
 - **Subtítulo:** contador `n/22`, âmbar a partir de 90%, bloqueia no limite.
-- **Desativar a última oferta ativa de um sabor** → aviso: "Chopp IPA vai sumir do site. Continuar?"
-- **Oferta ativa sem preço** → bloqueia o salvar, com mensagem no campo.
+- **Remover deste sabor** (substitui o toggle; Card 12): confirmação "Remover Heineken de Premium Lager?" → grava `active = false` → toast **Desfazer (10 s)** → a linha some da tela. Se for a **última oferta ativa** do sabor, a confirmação acrescenta "Premium Lager vai sumir do site."
+- **Oferta sem preço** → permitido (Card 12; a regra "oferta ativa exige um preço" e o `check` do banco foram removidos na migration `0007`).
 - **Salvar por linha** (não autosave). Após salvar: toast "Salvo" com **Desfazer (10 s)**, que reverte para os valores anteriores.
 - **Cabeçalho:** "Última alteração: <nome>, <data/hora>" (de `updated_by` / `updated_at`).
-- **Combinação inexistente:** botão "Adicionar marca a este sabor" cria a oferta.
+- **Combinação inexistente ou removida:** botão "Adicionar marca a este sabor" cria a oferta; se a marca já teve uma oferta neste sabor (removida), **reativa a mesma linha** (com os valores antigos preenchidos para conferência; nada é gravado até o Salvar).
 
 **Critérios de aceite**
 - [ ] Operador, gerente e dono editam; cada alteração aparece no Histórico.
 - [ ] Digitar `0`, `-5` ou `9999` → bloqueado com mensagem clara.
 - [ ] Desfazer restaura exatamente o valor anterior.
 - [ ] Uso confortável em tela de 360 px (alvos de toque ≥ 44 px).
+- [ ] (Card 12) Remover deste sabor: confirmação, Desfazer 10 s, linha some; "Adicionar marca" a traz de volta (mesma linha).
+- [ ] (Card 12) Os dois preços vazios são aceitos e o site mostra "Valor a consultar".
 
 ---
 
-## CARD 6 — Tela Catálogo (marcas e sabores) + upload com recorte
+## CARD 6 — Telas Marcas e Sabores + upload com recorte
 
 **Objetivo:** criar e editar marcas e sabores sem risco de quebrar o layout.
 
@@ -410,7 +416,7 @@ grant execute on function public.complete_password_change() to authenticated;
 | Cor do selo | select com 5 opções e prévia |
 
 **Telas**
-- **Marcas e Sabores:** abas. Lista com toggle de ativo e reordenação (setas ↑↓, sem drag no mobile).
+- **Marcas (`/admin/marcas`) e Sabores (`/admin/sabores`):** duas telas separadas (Card 12; antes eram abas em `/admin/catalogo`, que agora redireciona para Marcas). Lista com toggle de ativo e reordenação (setas ↑↓, sem drag no mobile).
 - **Formulário:** prévia ao vivo do card como aparece no site. Slug gerado automaticamente a partir do nome (sem acento) e não editável depois de criado.
 - **Novo sabor:** após salvar, leva direto para Preços desse sabor.
 - **Desativar marca:** "Brahma será ocultada em X sabores. Continuar?"
@@ -518,7 +524,7 @@ grant execute on function public.complete_password_change() to authenticated;
 **Telas**
 - `/admin/ponto` (todos): relógio, próximo passo sugerido, botão grande, marcações de hoje, "Lancei esquecimento".
 - `/admin/ponto/espelho` (dono/gerente): filtro colaborador + mês, exportar.
-- Barra inferior: com 6+ itens, agrupar os menos usados em "Mais".
+- Barra inferior: com 6+ itens, agrupar os menos usados em "Mais". (Card 12: ordem **Marcas · Sabores · Preços · Ponto**; Config., Histórico e Usuários em "Mais" quando o perfil tem 6+ itens — dono e gerente; o operador, com 4, vê todos.)
 
 **Critérios de aceite**
 - [ ] Hora gravada é a do servidor mesmo com relógio do celular adiantado.
@@ -561,6 +567,27 @@ grant execute on function public.complete_password_change() to authenticated;
 - [ ] Pedido de teste no celular chega no WhatsApp do dono com valores corretos.
 - [ ] Link colado no WhatsApp mostra imagem e título.
 - [ ] `/admin` não aparece no Google (`site:` após indexação) e pede login.
+
+## CARD 12 — Marcas e Sabores separados, Preços sem toggle e "Valor a consultar"
+
+**Objetivo:** simplificar a operação do dono: telas de Marcas e Sabores separadas, Preços sem o toggle de ativo e
+oferta sem preço publicada como "Valor a consultar".
+
+**Regras (decididas com o dono)**
+- Barra: **Marcas · Sabores · Preços · Ponto** + "Mais" (Config., Histórico, Usuários) com 6+ itens. `/admin/catalogo` → `/admin/marcas`. Tela inicial pós-login: `/admin/precos`. Permissões iguais às anteriores.
+- Preços: sem toggle; **Remover deste sabor** (confirmação + `active = false` + Desfazer 10 s); **Adicionar marca a este sabor** reativa a mesma linha. Preços 30L e 50L opcionais (> 0 e ≤ 5.000 quando preenchidos; variação > 30% continua pedindo confirmação).
+- Site: "Valor a consultar" no catálogo e no configurador; total e WhatsApp somam só o que tem preço (ver Card 2). Fallback (Supabase fora) inalterado: "Consultar", sem valores.
+
+**Banco (migration `0007_offer_price_optional.sql`)**
+- `alter table public.offers drop constraint offers_check;` (o `check (not active or price_30 is not null or price_50 is not null)`). Nada mais muda no schema.
+
+**Critérios de aceite**
+- [ ] Barra por perfil na ordem pedida; `/admin/catalogo` redireciona; login cai em `/admin/precos`.
+- [ ] Remover deste sabor + Desfazer + Adicionar marca (mesma linha); sem toggle Ativa/Inativa.
+- [ ] Oferta ativa com os dois preços vazios é aceita pelo banco e pela tela.
+- [ ] Site: "Valor a consultar" (catálogo, configurador, WhatsApp); sabor sem nenhum preço aparece; fallback inalterado.
+
+---
 
 ## Ordem e dependências
 
