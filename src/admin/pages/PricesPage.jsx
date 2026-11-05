@@ -98,8 +98,10 @@ export default function PricesPage() {
         return { error: 'Este preço foi alterado por outra pessoa. A tela foi atualizada: confira e salve de novo.' };
       }
       replaceOffer(row);
+      const reactivated = !offer.active;
+      if (reactivated) setAdding(a => { const n = { ...a }; delete n[flavor.id]; return n; });
       const previous = Object.fromEntries(SAVE_FIELDS.map(k => [k, offer[k]]));
-      showToast('Salvo', { id: row.id, previous, expectedUpdatedAt: row.updated_at });
+      showToast(reactivated ? 'Marca adicionada' : 'Salvo', { id: row.id, previous, expectedUpdatedAt: row.updated_at });
       return {};
     }
     const { data: row, error } = await supabase
@@ -112,6 +114,20 @@ export default function PricesPage() {
     setAdding(a => { const n = { ...a }; delete n[flavor.id]; return n; });
     // Não existe DELETE: desfazer uma criação desativa a oferta.
     showToast('Marca adicionada', { id: row.id, previous: { active: false }, expectedUpdatedAt: row.updated_at });
+    return {};
+  };
+
+  // Remover deste sabor = active=false (não existe DELETE). Desfazer volta a active=true.
+  const removeOffer = async (offer) => {
+    const { data: row, error } = await supabase
+      .from('offers').update({ active: false }).eq('id', offer.id).eq('updated_at', offer.updated_at).select('*').maybeSingle();
+    if (error) return { error: mapDbError(error) };
+    if (!row) {
+      await load();
+      return { error: 'Este preço foi alterado por outra pessoa. A tela foi atualizada: confira e tente de novo.' };
+    }
+    replaceOffer(row);
+    showToast('Marca removida', { id: row.id, previous: { active: true }, expectedUpdatedAt: row.updated_at });
     return {};
   };
 
@@ -148,11 +164,14 @@ export default function PricesPage() {
 
       <div className="space-y-3">
         {data.flavors.map(flavor => {
-          const offers = data.offers
-            .filter(o => o.flavor_id === flavor.id)
+          const allOffers = data.offers.filter(o => o.flavor_id === flavor.id);
+          // Só ofertas ativas aparecem na tela; as removidas (active=false) voltam por "Adicionar marca a este sabor".
+          const offers = allOffers
+            .filter(o => o.active)
             .sort((a, b) => (brandById.get(a.brand_id)?.sort_order ?? 0) - (brandById.get(b.brand_id)?.sort_order ?? 0));
           const visibleCount = offers.filter(o => o.active && brandById.get(o.brand_id)?.active).length;
           const missing = data.brands.filter(b => !offers.some(o => o.brand_id === b.id));
+          const addingOffer = addingBrand => allOffers.find(o => o.brand_id === addingBrand.id && !o.active) || null;
           const open = openId === flavor.id;
           const addingBrandId = adding[flavor.id];
           const addingBrand = addingBrandId ? brandById.get(addingBrandId) : null;
@@ -186,7 +205,7 @@ export default function PricesPage() {
 
               <div className={`${open ? 'block' : 'hidden'} lg:block px-4 pb-3`}>
                 <div className={`hidden lg:grid ${GRID_COLS.replace('lg:grid ', '')} pb-2 border-b border-emerald-900/50 text-[11px] font-bold uppercase tracking-wider text-amber-400`}>
-                  <span>Marca</span><span>Subtítulo</span><span className="text-right pr-1">Barril 30L</span><span className="text-right pr-1">Barril 50L</span><span>Ativa</span><span />
+                  <span>Marca</span><span>Subtítulo</span><span className="text-right pr-1">Barril 30L</span><span className="text-right pr-1">Barril 50L</span><span />
                 </div>
 
                 <div className="divide-y divide-emerald-900/40">
@@ -201,6 +220,7 @@ export default function PricesPage() {
                         logoUrl={logoUrl(brand)}
                         wouldHideFlavor={wouldHideFlavor}
                         onSave={saveOffer}
+                        onRemove={removeOffer}
                       />
                     );
                   })}
@@ -209,7 +229,7 @@ export default function PricesPage() {
                       key={`new-${addingBrand.id}`}
                       flavor={flavor}
                       brand={addingBrand}
-                      offer={null}
+                      offer={addingOffer(addingBrand)}
                       logoUrl={logoUrl(addingBrand)}
                       wouldHideFlavor={wouldHideFlavor}
                       onSave={saveOffer}

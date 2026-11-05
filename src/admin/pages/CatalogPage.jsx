@@ -49,9 +49,10 @@ function ItemRow({ kind, item, subtitle, count, index, last, onMove, onToggle, o
   );
 }
 
-export default function CatalogPage() {
+// Card 12: uma tela por tipo. `kind` = 'brand' (/admin/marcas) ou 'flavor' (/admin/sabores).
+export default function CatalogPage({ kind }) {
   const navigate = useNavigate();
-  const [tab, setTab] = useState('brands');
+  const tab = kind === 'brand' ? 'brands' : 'flavors';
   const [data, setData] = useState({ brands: [], flavors: [], offers: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -188,23 +189,15 @@ export default function CatalogPage() {
     return <FlavorForm flavor={form.item} flavors={flavors} currentImageUrl={publicUrl(form.item?.image_path)} onSave={saveFlavor} onCancel={() => setForm(null)} />;
   }
 
-  const kind = tab === 'brands' ? 'brand' : 'flavor';
-  const list = tab === 'brands' ? brands : flavors;
+  const list = kind === 'brand' ? brands : flavors;
 
   return (
     <section className="space-y-5">
-      <h1 className="text-xl font-extrabold text-amber-300">Catálogo</h1>
-
-      <div role="tablist" aria-label="Catálogo" className="grid grid-cols-2 gap-2 rounded-2xl bg-[#0d1c10] p-1 border border-emerald-900/50">
-        {[['brands', 'Marcas'], ['flavors', 'Sabores']].map(([id, label]) => (
-          <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => { setTab(id); setNotice(''); }}
-            className={`min-h-[44px] rounded-xl text-sm font-bold ${tab === id ? 'bg-amber-500 text-slate-950' : 'text-emerald-200'}`}>{label}</button>
-        ))}
-      </div>
+      <h1 className="text-xl font-extrabold text-amber-300">{kind === 'brand' ? 'Marcas' : 'Sabores'}</h1>
 
       <button type="button" onClick={() => setForm({ kind, item: null })} className={`${primaryBtn} w-full flex items-center justify-center gap-2 text-sm`}>
         <Plus className="w-4 h-4" />
-        <span>{tab === 'brands' ? 'Nova marca' : 'Novo sabor'}</span>
+        <span>{kind === 'brand' ? 'Nova marca' : 'Novo sabor'}</span>
       </button>
 
       {notice && <p role="alert" className="text-sm font-semibold text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2.5">{notice}</p>}

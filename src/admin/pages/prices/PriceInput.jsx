@@ -1,7 +1,7 @@
 import React from 'react';
 import { finalizePriceText, maskPriceInput } from '../../pricing';
 
-// Campo de preço com máscara BRL: teclado numérico (decimal), vírgula para centavos, vazio = indisponível.
+// Campo de preço com máscara BRL: teclado numérico (decimal), vírgula para centavos, vazio = "Valor a consultar" no site.
 export default function PriceInput({ id, label, value, onChange, error, disabled }) {
   const errorId = `${id}-error`;
   return (

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Tag, Beer, Settings, History, Users, Clock, MoreHorizontal, LogOut } from 'lucide-react';
+import { Tag, Beer, Award, Settings, History, Users, Clock, MoreHorizontal, LogOut } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { ROLE_LABELS, navLayout } from '../rules';
 import RetentionNotice from './RetentionNotice';
 
-const ICONS = { tag: Tag, beer: Beer, settings: Settings, history: History, users: Users, clock: Clock };
+const ICONS = { award: Award, tag: Tag, beer: Beer, settings: Settings, history: History, users: Users, clock: Clock };
 
 const tabClass = (isActive) =>
   `h-16 min-h-[44px] w-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors ${

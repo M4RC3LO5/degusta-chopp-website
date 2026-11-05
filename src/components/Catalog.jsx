@@ -34,11 +34,15 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
   const { BRANDS, TYPES, PRICES, PROMO_MIN_LITERS, pricesAvailable, loading } = useCatalog();
   const [selectedBrandFilter, setSelectedBrandFilter] = useState('todos');
 
-  // Modo sem preços: "Consultar". Preço ausente com preços ativos: "—".
+  // Modo sem preços (fallback): "Consultar". Preço vazio com preços ativos: "Valor a consultar".
   const priceLabel = (value) => {
     if (!pricesAvailable) return 'Consultar';
-    return value === null ? '—' : formatPrice(value);
+    return value === null ? 'Valor a consultar' : formatPrice(value);
   };
+  // "Valor a consultar" é mais longo que um preço: pode quebrar em duas linhas e usa fonte menor.
+  const priceCellClass = (value) => (pricesAvailable && value === null
+    ? 'whitespace-normal leading-tight text-[10px] md:text-xs lg:text-xs xl:text-xs 2xl:text-sm'
+    : 'whitespace-nowrap text-[11px] md:text-sm lg:text-base xl:text-sm 2xl:text-base');
 
   const filterOptions = [
     { id: 'todos', name: 'Todas as Marcas' },
@@ -202,14 +206,14 @@ export default function Catalog({ onOpenWhatsApp, onSelectType }) {
 
                               {/* Price 30L */}
                               <div className="flex items-center justify-center h-full">
-                                <span className="border border-emerald-700/50 rounded-md py-1 px-0.5 md:py-2 md:px-2 text-center text-amber-400 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-[11px] md:text-sm lg:text-base xl:text-sm 2xl:text-base whitespace-nowrap min-h-[36px] md:min-h-[44px] shadow-sm">
+                                <span className={`border border-emerald-700/50 rounded-md py-1 px-0.5 md:py-2 md:px-2 text-center text-amber-400 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold ${priceCellClass(price30)} min-h-[36px] md:min-h-[44px] shadow-sm`}>
                                   {priceLabel(price30)}
                                 </span>
                               </div>
 
                               {/* Price 50L */}
                               <div className="flex items-center justify-center h-full">
-                                <span className="border border-emerald-700/50 rounded-md py-1 px-0.5 md:py-2 md:px-2 text-center text-yellow-300 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold text-[11px] md:text-sm lg:text-base xl:text-sm 2xl:text-base whitespace-nowrap min-h-[36px] md:min-h-[44px] shadow-sm">
+                                <span className={`border border-emerald-700/50 rounded-md py-1 px-0.5 md:py-2 md:px-2 text-center text-yellow-300 bg-emerald-900/30 w-full flex items-center justify-center font-extrabold ${priceCellClass(price50)} min-h-[36px] md:min-h-[44px] shadow-sm`}>
                                   {priceLabel(price50)}
                                 </span>
                               </div>

@@ -1,0 +1,43 @@
+  pilsen: MARCA BARRIL 30L BARRIL 50L | Brahma R$ 490,00 —
+✅ (antes) Germânia sumia do sabor quando as duas células estavam vazias MARCA BARRIL 30L BARRIL 50L | Brahma R$ 490,00 —
+✅ (antes) Premium Lager sumia do site 
+RESUMO 0 falhas de 2
+  pilsen: MARCA BARRIL 30L BARRIL 50L | Germânia Valor a consultar Valor a consultar | Brahma R$ 490,00 Valor a consultar
+✅ Catálogo: Germânia (sem nenhum preço) aparece com "Valor a consultar" nas duas células 
+✅ Catálogo: Brahma com só o 50L vazio: 30L com preço e 50L "Valor a consultar" 
+✅ Catálogo: nenhuma célula "—" 
+✅ Catálogo: sabor com todas as ofertas sem preço (Premium Lager) aparece 
+✅ Catálogo: Premium Lager mostra Heineken com "Valor a consultar"  a consultar Valor a consultar Ideal para: Churrascos, grandes festas e dias de calor MONTAR ORÇAMENTO COM PREMIUM LAGER
+✅ Configurador: tamanho sem preço mostra "Valor a consultar" 30 Litros Valor a consultar
+✅ Configurador: tamanho sem preço é selecionável (não desabilitado) 
+✅ Configurador: seleciona o tamanho sem preço 
+✅ Configurador: só item sem preço → total "Valor a consultar" (sem R$ 0,00) Valor a consultar
+✅ Configurador: total soma só os itens com preço (R$ 490,00) R$ 490,00
+✅ Configurador: mostra "+ itens com valor a consultar" + itens com valor a consultar
+✅ Configurador: linha do item sem preço mostra "Valor a consultar" 
+*🍺 ORÇAMENTO — DEGUSTA CHOPP*
+━━━━━━━━━━━━━━━━━━
+
+*1.* Chopp Pilsen — Germânia
+    1x barril de 30L ....... Valor a consultar
+
+*2.* Chopp Pilsen — Brahma
+    1x barril de 30L ....... R$ 490,00
+
+━━━━━━━━━━━━━━━━━━
+*Total:* 60 litros
+*Valor:* R$ 490,00 (+ itens a consultar)
+✅ *Chopeira inclusa (cortesia)*
+━━━━━━━━━━━━━━━━━━
+
+📅 Data do evento:
+📍 Endereço de entrega:
+🕐 Horário:
+
+---
+_Enviado pelo site degustachopp_
+✅ WhatsApp: linha do item sem preço com "Valor a consultar" 
+✅ WhatsApp: *Valor:* soma só o que tem preço + "(+ itens a consultar)" 
+✅ Fallback: catálogo mostra "Consultar" e nenhum valor em R$ ante e muito cremoso. O clássico indispensável para qualquer churrasco ou celebração. MARCA BARRIL 30L BARRIL 50L Bru (Custo-benefício) Cons
+✅ Fallback: WhatsApp com "Valores a confirmar" e sem R$ 
+RESUMO 0 falhas de 16

@@ -27,14 +27,14 @@ export function maskPriceInput(raw) {
   return (negative ? '-' : '') + grouped + (decPart !== null ? `,${decPart}` : '');
 }
 
-// Texto -> { value: number|null, error: string }. Vazio = tamanho indisponível (value null, sem erro).
+// Texto -> { value: number|null, error: string }. Vazio = "Valor a consultar" no site (value null, sem erro).
 export function parsePriceText(text) {
   const t = String(text ?? '').trim();
   if (t === '' || t === '-') return { value: null, error: t === '-' ? 'O preço não pode ser negativo.' : '' };
   const n = Number(t.replace(/\./g, '').replace(',', '.'));
   if (Number.isNaN(n)) return { value: null, error: 'Valor inválido.' };
   if (n < 0) return { value: null, error: 'O preço não pode ser negativo.' };
-  if (n <= priceMin) return { value: null, error: 'O preço deve ser maior que zero. Deixe em branco se este tamanho não é vendido.' };
+  if (n <= priceMin) return { value: null, error: 'O preço deve ser maior que zero. Deixe em branco para mostrar "Valor a consultar" no site.' };
   if (n > priceMax) return { value: null, error: `O preço máximo é ${formatBRL(priceMax)}.` };
   return { value: Math.round(n * 100) / 100, error: '' };
 }
@@ -65,9 +65,7 @@ export function validateOffer(draft) {
   if (p50.error) errors.p50 = p50.error;
   const subtitle = normalizeSubtitle(draft.subtitle);
   if (subtitle !== null && subtitle.length > subtitleMax) errors.subtitle = `O subtítulo pode ter no máximo ${subtitleMax} caracteres.`;
-  if (draft.active && !errors.p30 && !errors.p50 && p30.value === null && p50.value === null) {
-    errors.prices = 'Oferta ativa precisa de pelo menos um preço. Preencha um valor ou desative a oferta.';
-  }
+  // Card 12: os dois preços podem ficar vazios (o site mostra "Valor a consultar").
   return { errors, values: { subtitle, price_30: p30.value, price_50: p50.value, active: Boolean(draft.active) } };
 }
 

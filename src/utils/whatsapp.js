@@ -26,6 +26,8 @@ export function buildWhatsAppMessage(items, catalog = STATIC_CATALOG) {
 
   let totalLiters = 0;
   let totalPrice = 0;
+  let pricedCount = 0;
+  let hasUnpriced = false;
   const validItemLines = [];
   let itemCounter = 0;
 
@@ -40,20 +42,22 @@ export function buildWhatsAppMessage(items, catalog = STATIC_CATALOG) {
     if (!type || !brand || !isOffered(PRICES, typeId, brandId, size)) {
       continue;
     }
-    // Com preços disponíveis, oferta sem valor numérico não entra na mensagem.
-    if (pricesAvailable && unitPrice === null) {
-      continue;
-    }
-
     const itemQty = Number(qty) || 1;
     const lineLiters = size * itemQty;
 
     totalLiters += lineLiters;
     itemCounter += 1;
 
-    if (pricesAvailable) {
+    if (pricesAvailable && unitPrice === null) {
+      // Card 12: oferta ativa sem preço entra na mensagem como "Valor a consultar" e fora da soma.
+      hasUnpriced = true;
+      validItemLines.push(
+        `*${itemCounter}.* ${type.name} — ${brand.name}\n    ${itemQty}x barril de ${size}L ....... Valor a consultar`
+      );
+    } else if (pricesAvailable) {
       const lineSubtotal = unitPrice * itemQty;
       totalPrice += lineSubtotal;
+      pricedCount += 1;
       validItemLines.push(
         `*${itemCounter}.* ${type.name} — ${brand.name}\n    ${itemQty}x barril de ${size}L ....... ${formatPrice(lineSubtotal)}`
       );
@@ -69,7 +73,11 @@ export function buildWhatsAppMessage(items, catalog = STATIC_CATALOG) {
   }
 
   const itemsFormatted = validItemLines.join('\n\n');
-  const valueLine = pricesAvailable ? formatPrice(totalPrice) : 'Valores a confirmar';
+  let valueLine = 'Valores a confirmar';
+  if (pricesAvailable) {
+    if (!hasUnpriced) valueLine = formatPrice(totalPrice);
+    else valueLine = pricedCount > 0 ? `${formatPrice(totalPrice)} (+ itens a consultar)` : 'Valor a consultar';
+  }
   const promoLine = totalLiters >= PROMO_MIN_LITERS
     ? '✅ *Chopeira inclusa (cortesia)*'
     : 'Locação de chopeira: a combinar';

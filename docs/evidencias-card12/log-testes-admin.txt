@@ -1,0 +1,55 @@
+✅ teste.operador: tela inicial após login = /admin/precos /admin/precos
+✅ teste.operador: barra = Marcas · Sabores · Preços · Ponto Marcas · Sabores · Preços · Ponto
+✅ teste.operador: /admin/catalogo redireciona p/ /admin/marcas /admin/marcas
+✅ operador em /admin/usuarios volta para Preços 
+✅ operador em /admin/config volta para Preços 
+✅ operador em /admin/historico volta para Preços 
+✅ operador em /admin/ponto/espelho volta para Preços 
+✅ teste.gerente: tela inicial após login = /admin/precos /admin/precos
+✅ teste.gerente: barra = Marcas · Sabores · Preços · Ponto · Mais Marcas · Sabores · Preços · Ponto · Mais
+✅ teste.gerente: "Mais" = Config., Histórico Config., Histórico
+✅ gerente em /admin/usuarios volta para Preços 
+✅ gerente acessa /admin/config 
+✅ teste.dono: tela inicial após login = /admin/precos /admin/precos
+✅ teste.dono: barra = Marcas · Sabores · Preços · Ponto · Mais Marcas · Sabores · Preços · Ponto · Mais
+✅ teste.dono: "Mais" = Config., Histórico, Usuários Config., Histórico, Usuários
+✅ Marcas: título e sem abas 
+✅ Marcas: botão "Nova marca" 
+✅ Marcas: lista = 5 marcas (4 reais + teste-marca) 5
+✅ Sabores: título e sem abas 
+✅ Sabores: botão "Novo sabor" 
+✅ Sabores: lista = 6 sabores (inclui Premium Lager) 
+✅ Sabores: Editar abre o formulário de sabor 
+✅ Preços: sem toggle Ativa/Inativa 
+✅ Preços: Pilsen mostra só as ofertas ativas (Germânia e Brahma; Bru inativa não aparece) 
+✅ Preços: botão "Remover deste sabor" por linha 
+✅ Remover: confirmação "Remover Germânia de Chopp Pilsen?" Remover Germânia de Chopp Pilsen?
+✅ Remover: cancelar mantém a oferta ativa 
+✅ Remover: grava active=false (preços e subtítulo intactos) 
+✅ Remover: a linha some da tela 
+✅ Remover: toast com Desfazer (10 s) Desfazer (9 s)
+✅ Remover: contagem regressiva anda Desfazer (6 s)
+✅ Desfazer: oferta volta ativa, mesma linha e mesmos valores 
+✅ Toast some após 10 s (sem Desfazer) 
+✅ Adicionar marca: oferece a marca removida (e Bru, removida antes) Bru | Germânia | Teste Marca (desativada) | Heineken
+✅ Adicionar marca: reativação vem com os valores antigos preenchidos 420,00
+✅ Adicionar marca: reativa a MESMA linha (id igual, active=true) 
+✅ Adicionar marca: nenhuma oferta nova criada (contagem estável: 17) 17
+✅ Preços vazios: sem erro e Salvar habilitado 
+✅ Preços vazios: dica "Valor a consultar" no campo 
+✅ Preços vazios: banco aceita oferta ativa com os dois preços null (migration 0007) 
+✅ Mantém: 0 bloqueia 
+✅ Mantém: 9999 bloqueia 
+✅ Mantém: variação > 30% pede confirmação Era R$ 1.000,00, agora R$ 500,00. Confirma?
+✅ Mantém: cancelar a variação não grava 
+✅ Última oferta do sabor: "Remover Heineken de Premium Lager? Premium Lager vai sumir do site." Remover Heineken de Premium Lager? Premium Lager vai sumir do site.
+✅ Última oferta: anon vê 0 ofertas ativas de Premium Lager []
+✅ Sem ofertas: sabor mostra "Sem ofertas ativas" e oferece Adicionar marca 
+✅ Desfazer devolve a Heineken a Premium Lager 
+✅ Desktop 1280: tabela sem estouro (nada fora do cartão, sem rolagem horizontal) {"out":[],"sw":1280}
+✅ Desktop 1280: cabeçalho sem coluna "Ativa" 
+✅ 360 px: todos os controles (inclui "Remover deste sabor") têm >= 44 px []
+✅ 360 px: sem rolagem horizontal 
+
+RESUMO 0 falhas de 52
+exit 0

@@ -57,9 +57,9 @@ export const ROLE_LABELS = { dono: 'Dono', gerente: 'Gerente', operador: 'Operad
 
 // Descrição de cada perfil (espelha a tabela de permissões da Fase 1).
 export const ROLE_DESCRIPTIONS = {
-  dono: 'Acesso total: Preços, Catálogo, Ponto, Configurações, Histórico e Usuários.',
-  gerente: 'Preços, Catálogo, Ponto (com espelho de todos), Configurações e Histórico. Não gerencia usuários.',
-  operador: 'Preços, Catálogo e o próprio Ponto. Sem Configurações, Histórico e Usuários.'
+  dono: 'Acesso total: Marcas, Sabores, Preços, Ponto, Configurações, Histórico e Usuários.',
+  gerente: 'Marcas, Sabores, Preços, Ponto (com espelho de todos), Configurações e Histórico. Não gerencia usuários.',
+  operador: 'Marcas, Sabores, Preços e o próprio Ponto. Sem Configurações, Histórico e Usuários.'
 };
 
 export const USERS_NOTICE = 'Mantenha pelo menos 2 usuários com perfil Dono.';
@@ -67,8 +67,9 @@ export const USERS_NOTICE = 'Mantenha pelo menos 2 usuários com perfil Dono.';
 // Rotas do admin (relativas a /admin) e quem pode acessar. Ordem = ordem da barra inferior.
 // `more: true` = vai para o menu "Mais" quando a barra tem 6+ itens. `hidden: true` = existe como rota, sem item na barra.
 export const ADMIN_ROUTES = [
+  { path: 'marcas', label: 'Marcas', icon: 'award', roles: ['dono', 'gerente', 'operador'] },
+  { path: 'sabores', label: 'Sabores', icon: 'beer', roles: ['dono', 'gerente', 'operador'] },
   { path: 'precos', label: 'Preços', icon: 'tag', roles: ['dono', 'gerente', 'operador'] },
-  { path: 'catalogo', label: 'Catálogo', icon: 'beer', roles: ['dono', 'gerente', 'operador'] },
   { path: 'ponto', label: 'Ponto', icon: 'clock', roles: ['dono', 'gerente', 'operador'] },
   { path: 'ponto/espelho', label: 'Espelho de ponto', icon: 'clock', roles: ['dono', 'gerente'], hidden: true },
   { path: 'config', label: 'Config.', icon: 'settings', roles: ['dono', 'gerente'], more: true },
@@ -93,9 +94,11 @@ export function canAccess(role, path) {
   return ADMIN_ROUTES.some(r => r.path === path && r.roles.includes(role));
 }
 
-// Home por perfil. Na Fase 2 dono e gerente passam a ter o Dashboard.
-export function homePathForRole(role) {
-  return routesForRole(role)[0]?.path || 'precos';
+// Tela inicial após o login: Preços para todos os perfis (não é mais o 1º item da barra).
+// Na Fase 2 dono e gerente passam a ter o Dashboard.
+export const HOME_PATH = 'precos';
+export function homePathForRole() {
+  return HOME_PATH;
 }
 
 export function usernameToEmail(username) {

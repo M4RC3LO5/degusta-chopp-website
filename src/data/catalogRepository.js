@@ -94,16 +94,15 @@ function mapCatalog({ brands, flavors, offers, settings }, baseUrl) {
     return mapped;
   });
 
-  // Só ofertas ativas cujo sabor E marca estão ativos (carregados).
+  // Só ofertas ativas cujo sabor E marca estão ativos (carregados). Preço vazio não exclui a oferta.
   const PRICES = {};
   for (const o of offers) {
     const flavor = flavorById.get(o.flavor_id);
     const brand = brandById.get(o.brand_id);
     if (!flavor || !brand) continue;
-    const entry = { subtitle: o.subtitle || '', available: true };
-    if (o.price_30 !== null && o.price_30 !== undefined) entry[30] = Number(o.price_30);
-    if (o.price_50 !== null && o.price_50 !== undefined) entry[50] = Number(o.price_50);
-    if (!(30 in entry) && !(50 in entry)) continue;
+    // Card 12: oferta ativa sem preço continua oferecida nos dois tamanhos; valor null = "Valor a consultar".
+    const toPrice = (v) => (v === null || v === undefined ? null : Number(v));
+    const entry = { subtitle: o.subtitle || '', available: true, 30: toPrice(o.price_30), 50: toPrice(o.price_50) };
     (PRICES[flavor.id] ||= {})[brand.id] = entry;
   }
 

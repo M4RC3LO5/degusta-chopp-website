@@ -4,16 +4,19 @@ import PriceInput from './PriceInput';
 import { bigVariations, isDirty, priceToText, validateOffer, variationMessage } from '../../pricing';
 import { RULES } from '../../rules';
 
-// Colunas da tabela no desktop (md+): marca | subtítulo | 30L | 50L | ativa | ações (Salvar; em oferta nova, Cancelar empilhado abaixo, dentro da coluna)
-export const GRID_COLS = 'lg:grid lg:grid-cols-[170px_minmax(160px,1fr)_140px_140px_100px_104px] lg:gap-x-3 lg:gap-y-1 lg:items-start';
+// Colunas da tabela no desktop (lg+): marca | subtítulo | 30L | 50L | ações (Salvar; abaixo, "Remover deste sabor" ou, em oferta nova, Cancelar)
+export const GRID_COLS = 'lg:grid lg:grid-cols-[170px_minmax(160px,1fr)_140px_140px_150px] lg:gap-x-3 lg:gap-y-1 lg:items-start';
 
 const EMPTY = { subtitle: null, price_30: null, price_50: null, active: true };
 
 // Linha de uma oferta (sabor x marca). `offer` nulo = oferta nova (ainda não existe no banco).
-// Mobile: cartão empilhado. md+: linha de tabela (grid).
-export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavor, onSave, onCancelNew }) {
+// `offer` inativa = marca removida deste sabor e agora sendo adicionada de novo (reativa a mesma linha).
+// Não há toggle Ativa/Inativa: a linha está sempre ativa; "Remover deste sabor" grava active=false.
+// Mobile: cartão empilhado. lg+: linha de tabela (grid).
+export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavor, onSave, onRemove, onCancelNew }) {
   const saved = offer || EMPTY;
-  const initial = () => ({ subtitle: saved.subtitle ?? '', text30: priceToText(saved.price_30), text50: priceToText(saved.price_50), active: Boolean(saved.active) });
+  const isNew = !offer || !offer.active;      // ainda não está no site: mostra Cancelar em vez de Remover
+  const initial = () => ({ subtitle: saved.subtitle ?? '', text30: priceToText(saved.price_30), text50: priceToText(saved.price_50), active: true });
   const [draft, setDraft] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -28,7 +31,7 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
 
   const { errors, values } = useMemo(() => validateOffer(draft), [draft]);
   const hasErrors = Object.keys(errors).length > 0;
-  const dirty = offer ? isDirty(saved, values) : true;
+  const dirty = isNew ? true : isDirty(saved, values);
   const set = (patch) => { setServerError(''); setDraft(d => ({ ...d, ...patch })); };
 
   const ask = (message, confirmLabel) => new Promise(resolve => setConfirm({ message, confirmLabel, resolve }));
@@ -36,13 +39,27 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
 
   const save = async () => {
     if (busy || hasErrors || !dirty) return;
-    // 1) variação > 30% em algum tamanho; 2) desativar a última oferta visível do sabor
-    const big = offer ? bigVariations(saved, values) : [];
+    // Variação > 30% em algum tamanho (só em oferta que já está no site)
+    const big = isNew ? [] : bigVariations(saved, values);
     if (big.length > 0 && !(await ask(variationMessage(big), 'Confirmar'))) return;
-    if (offer && wouldHideFlavor(offer, values) && !(await ask(`${flavor.name} vai sumir do site. Continuar?`, 'Continuar'))) return;
     setBusy(true);
     setServerError('');
     const result = await onSave(values, offer, flavor, brand);
+    if (mounted.current) {
+      setBusy(false);
+      if (result?.error) setServerError(result.error);
+    }
+  };
+
+  // Remover deste sabor: confirmação -> active=false (a linha some da tela; "Adicionar marca" a traz de volta).
+  const remove = async () => {
+    if (busy) return;
+    const hides = wouldHideFlavor(offer, { active: false });
+    const message = `Remover ${brand.name} de ${flavor.name}?${hides ? ` ${flavor.name} vai sumir do site.` : ''}`;
+    if (!(await ask(message, 'Remover'))) return;
+    setBusy(true);
+    setServerError('');
+    const result = await onRemove(offer);
     if (mounted.current) {
       setBusy(false);
       if (result?.error) setServerError(result.error);
@@ -53,11 +70,11 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
   const subLen = sub.length;
   const subWarn = subLen >= RULES.offer.subtitleMax * RULES.offer.subtitleWarnAt;
   const id = `${flavor.slug}-${brand.slug}`;
-  const hidden = offer && (!offer.active || !brand.active || !flavor.active);
+  const hidden = offer && (!brand.active || !flavor.active);
 
   return (
     <div data-testid={`offer-${id}`} className={`${GRID_COLS} py-4 lg:py-3 space-y-3 lg:space-y-0`}>
-      {/* Marca + ativa (mobile: mesma linha; lg: vira duas células da grid) */}
+      {/* Marca */}
       <div className="flex items-center justify-between gap-3 lg:contents">
         <div className="flex items-center gap-3 min-w-0 lg:col-start-1 lg:row-start-1 lg:h-11">
           <img
@@ -75,19 +92,6 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
           </div>
         </div>
 
-        <button
-          type="button"
-          role="switch"
-          aria-checked={draft.active}
-          aria-label={`Oferta ${brand.name} ativa`}
-          onClick={() => set({ active: !draft.active })}
-          className="min-h-[44px] flex items-center gap-2 lg:col-start-5 lg:row-start-1"
-        >
-          <span className={`relative inline-block w-12 h-7 rounded-full transition-colors ${draft.active ? 'bg-emerald-500' : 'bg-slate-600'}`}>
-            <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-all ${draft.active ? 'left-[22px]' : 'left-0.5'}`} />
-          </span>
-          <span className="text-xs font-bold text-emerald-100/90 w-12 text-left">{draft.active ? 'Ativa' : 'Inativa'}</span>
-        </button>
       </div>
 
       {/* Subtítulo */}
@@ -115,12 +119,16 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
           <PriceInput id={`${id}-p50`} label="Barril 50L" value={draft.text50} onChange={(v) => set({ text50: v })} error={errors.p50} />
         </div>
       </div>
-      {errors.prices && <p role="alert" className="text-xs font-semibold text-rose-300 lg:col-span-full lg:row-start-2">{errors.prices}</p>}
+      {!draft.text30 && !draft.text50 && (
+        <p className="text-[11px] text-emerald-200/60 lg:col-span-full lg:row-start-2" data-testid={`${id}-consult-hint`}>Sem preço: o site mostra &quot;Valor a consultar&quot;.</p>
+      )}
 
-      {/* Salvar (por linha) */}
-      <div className="flex gap-2 lg:flex-col-reverse lg:col-start-6 lg:row-start-1 lg:min-w-0">
-        {!offer && (
+      {/* Salvar (por linha) + Remover deste sabor (oferta no site) ou Cancelar (oferta nova) */}
+      <div className="flex gap-2 lg:flex-col-reverse lg:col-start-5 lg:row-start-1 lg:min-w-0">
+        {isNew ? (
           <button type="button" onClick={onCancelNew} disabled={busy} className="min-h-[44px] px-3 lg:w-full rounded-xl border border-emerald-900/60 bg-[#0d1c10] text-xs font-bold text-emerald-200 disabled:opacity-50">Cancelar</button>
+        ) : (
+          <button type="button" onClick={remove} disabled={busy} className="min-h-[44px] px-3 lg:w-full rounded-xl border border-rose-500/40 bg-[#0d1c10] text-xs font-bold text-rose-300 disabled:opacity-50">Remover deste sabor</button>
         )}
         <button
           type="button"
@@ -137,6 +145,7 @@ export default function OfferRow({ flavor, brand, offer, logoUrl, wouldHideFlavo
       {confirm && (
         <ConfirmDialog
           title="Confirmar alteração"
+          danger={confirm.confirmLabel === 'Remover'}
           message={confirm.message}
           confirmLabel={confirm.confirmLabel}
           onConfirm={() => answer(true)}
