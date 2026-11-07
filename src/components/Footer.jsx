@@ -1,6 +1,7 @@
 import React from 'react';
 import { Beer, MessageCircle, Instagram, Phone, MapPin, Clock, ShieldCheck } from 'lucide-react';
 import { useCatalog } from '../data/CatalogContext';
+import InstallButton from '../pwa/InstallButton';
 
 // 5511991069099 -> "11 99106-9099" (fixo: 5511 3456-7890)
 function formatPhone(whatsapp) {
@@ -122,9 +123,17 @@ export default function Footer({ onOpenWhatsApp }) {
 
         {/* Bottom Rights */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-emerald-300/60 gap-4">
-          <p>
-            © {currentYear} Degusta Chopp. Todos os direitos reservados.
-          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-x-4 gap-y-2">
+            <p>
+              © {currentYear} Degusta Chopp. Todos os direitos reservados.
+            </p>
+            <InstallButton
+              appName="Degusta Chopp"
+              testId="install-app-footer"
+              className="flex items-center gap-1.5 underline underline-offset-2 hover:text-amber-300 transition-colors"
+              iconClassName="w-3.5 h-3.5"
+            />
+          </div>
           <p className="flex items-center gap-1">
             <span>Aprecio moderado. Venda proibida para menores de 18 anos.</span>
             <span>🔞</span>

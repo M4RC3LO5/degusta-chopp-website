@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { MESSAGES } from '../rules';
+import InstallButton from '../../pwa/InstallButton';
 
 export default function LoginPage() {
   const { status, signIn, notice, clearNotice } = useAuth();
@@ -94,6 +95,15 @@ export default function LoginPage() {
 
           <p className="text-xs text-emerald-200/70 text-center">{MESSAGES.forgot}</p>
         </form>
+
+        <div className="mt-4 flex justify-center">
+          <InstallButton
+            appName="Degusta Admin"
+            testId="install-app-login"
+            className="h-11 px-4 rounded-xl border border-emerald-900/60 bg-[#142718] text-sm font-bold text-emerald-200 hover:text-amber-300 flex items-center gap-2"
+            iconClassName="w-4 h-4 text-amber-400"
+          />
+        </div>
       </div>
     </div>
   );

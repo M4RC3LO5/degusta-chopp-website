@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Beer, Menu, X, MessageCircle, Calculator, ChevronRight } from 'lucide-react';
+import InstallButton from '../pwa/InstallButton';
 
 export default function Navbar({ onOpenCalculator, onOpenWhatsApp }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -70,6 +71,13 @@ export default function Navbar({ onOpenCalculator, onOpenWhatsApp }) {
               <Calculator className="w-4 h-4 text-amber-400" />
               Calculadora
             </button>
+
+            <InstallButton
+              appName="Degusta Chopp"
+              testId="install-app-navbar"
+              className="flex items-center gap-1.5 text-xs font-semibold text-emerald-200/70 hover:text-amber-300 transition-colors whitespace-nowrap p-1"
+              labelClassName="hidden 2xl:inline"
+            />
           </nav>
 
           {/* Desktop Neumorphic CTA Button */}
@@ -132,6 +140,15 @@ export default function Navbar({ onOpenCalculator, onOpenWhatsApp }) {
               <Calculator className="w-5 h-5 text-amber-400" />
               Calculadora de Litros por Evento
             </button>
+
+            <InstallButton
+              appName="Degusta Chopp"
+              testId="install-app-mobile"
+              iconClassName="w-5 h-5 text-amber-400"
+              className="w-full py-3 px-4 rounded-xl bg-[#142718] text-emerald-100 font-bold border border-emerald-900/40 flex items-center justify-center gap-2 text-sm"
+            >
+              Instalar app no celular
+            </InstallButton>
 
             <button
               onClick={() => {

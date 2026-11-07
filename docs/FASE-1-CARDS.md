@@ -601,3 +601,48 @@ Admin entregue ao dono após Cards 3–5 (mínimo útil) para ele cadastrar os p
 
 ## Fase 2 (próxima)
 Pedidos (ciclo `NOVO → NEGOCIANDO → VENDIDO → ENTREGUE → RECOLHIDO`, `PERDIDO` com motivo, `CANCELADO`, pedido manual, código `#DC123` na mensagem), custos (operador só escreve, via RPC), dashboard financeiro (dono e gerente).
+
+---
+
+## CARD 14 — Botão "Instalar app" (site e admin)
+
+**Objetivo:** instalar o site e o admin como apps independentes, em 1 toque onde o navegador permite e com guia visual no iPhone/iPad. **Sem mudança de banco.**
+
+**Arquivos:** `public/site.webmanifest`, `public/admin-manifest.webmanifest`, `public/sw.js`, `public/admin/sw.js`, `public/site-icon-*.png`, `public/admin-icon-maskable-512.png`, `public/apple-touch-icon.png`, `scripts/gen-pwa-icons.py`, `src/pwa/` (`install.js`, `InstallButton.jsx`, `InstallGuide.jsx`), `index.html`, `vercel.json`, `vite.config.js`, Navbar/Footer, `LoginPage`/`AdminLayout`.
+
+**Como funciona**
+- **Dois apps:** site (`id` `/`, `scope` `/`, `start_url` `/`) e admin (`id` `/admin`, `scope` `/admin/`, `start_url` `/admin/`). Ícones 192/512 `any` + `maskable` gerados do logo atual (`python3 scripts/gen-pwa-icons.py`).
+- **Service workers mínimos** (`/sw.js` escopo `/`; `/admin/sw.js` escopo `/admin/`): **network-only**, sem `respondWith`, sem `caches.put`. Preços, catálogo e Supabase nunca ficam em cache (o SW ainda apaga qualquer cache antigo no `activate`). Só registram em produção.
+- **Botão:** `beforeinstallprompt` é capturado em `src/pwa/install.js` (importado cedo no `main.jsx`); o botão chama `prompt()`. No iPhone/iPad abre o guia de 2 passos (Compartilhar → Adicionar à Tela de Início). Some se já instalado (`display-mode: standalone` / `navigator.standalone`), após `appinstalled`, e não aparece em navegador sem suporte que não seja iOS.
+- **"Agora não"** (no guia) ou recusar o prompt nativo esconde por 30 dias (`localStorage`, chave `degusta-install-dismissed-at`, com try/catch).
+- **Onde:** site → Navbar (desktop: ícone, texto a partir de 2xl), menu do celular e link no rodapé; admin → tela de login e Mais → "Instalar app".
+
+**Hospedagem**
+- **Vercel (`vercel.json`):** `Content-Type: application/manifest+json` nos manifests; `/sw.js` e `/admin/sw.js` excluídos dos rewrites (não caem no `index.html`/`admin.html`), `Cache-Control: no-cache` e `Service-Worker-Allowed` (`/` e `/admin/`).
+- **HostGator (`.htaccess`), equivalente:**
+  ```apache
+  AddType application/manifest+json .webmanifest
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Service-Worker-Allowed "/"
+  </FilesMatch>
+  <Files "sw.js">   # dentro de /admin/ criar admin/.htaccess com Service-Worker-Allowed "/admin/"
+  </Files>
+  # Regras de SPA: servir arquivos existentes antes do fallback
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+  RewriteRule ^admin(/.*)?$ /admin.html [L]
+  RewriteRule ^ /index.html [L]
+  ```
+  (`RewriteCond -f` garante que `/sw.js`, `/admin/sw.js` e os manifests não sejam reescritos.)
+
+**Evidências (build local + Chromium/Playwright via CDP)**
+- ✅ Site: `Page.getInstallabilityErrors` = `[]`, `getAppManifest` sem erros, SW ativo com escopo `/`.
+- ✅ Admin: idem, `id` `/admin`, SW com escopo `/admin/`. (Detalhe: o manifest exige `start_url` dentro do `scope`; por isso `start_url` virou `/admin/`.)
+- ✅ Bundle da landing (gzip, chunk de entrada): **64,00 KB → 66,03 KB (+2,03 KB, meta ≤ +3 KB)**.
+- ✅ `supabase-js` só no chunk do admin; landing continua com `fetch`.
+- ✅ Botão some após aceitar o prompt; "Agora não" some e continua escondido após recarregar.
+- ✅ `npm run test:admin` 59/59.
+- Prints em `docs/card14/`: `site-desktop.png`, `site-mobile-menu.png`, `site-mobile-rodape.png`, `iphone-guia.png`, `admin-login.png`, `admin-mais.png`.
+- ❌/⚠️ Não testado em aparelho real (iPhone/Android): o guia do iOS e o prompt nativo foram validados por emulação (UA do iPhone e `beforeinstallprompt` sintético). Conferir após o deploy.

@@ -4,6 +4,7 @@ import { Tag, Beer, Award, Settings, History, Users, Clock, MoreHorizontal, LogO
 import { useAuth } from '../auth/AuthContext';
 import { ROLE_LABELS, navLayout } from '../rules';
 import RetentionNotice from './RetentionNotice';
+import InstallButton from '../../pwa/InstallButton';
 
 const ICONS = { award: Award, tag: Tag, beer: Beer, settings: Settings, history: History, users: Users, clock: Clock, shield: ShieldCheck };
 
@@ -71,6 +72,14 @@ export default function AdminLayout({ children }) {
                 </li>
               );
             })}
+            <li>
+              <InstallButton
+                appName="Degusta Admin"
+                testId="install-app-more"
+                className="w-full min-h-[48px] px-4 flex items-center gap-3 text-sm font-bold text-emerald-100/90 hover:text-amber-300"
+                iconClassName="w-5 h-5"
+              />
+            </li>
           </ul>
         )}
         <ul className="max-w-3xl lg:max-w-5xl mx-auto flex">
