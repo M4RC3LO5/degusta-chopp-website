@@ -3,16 +3,16 @@ import { Download } from 'lucide-react';
 import { useInstall } from './install';
 import InstallGuide from './InstallGuide';
 
-// Botão "Instalar app". Só aparece onde dá para instalar (prompt nativo ou iOS), não instalado e não dispensado.
+// Botão "Instalar app". Prompt nativo quando o navegador libera; senão, guia do aparelho (iOS, Android, computador).
 // `as`: botão (padrão) ou link de texto (rodapé). `className` vem do chamador para casar com o visual de cada lugar.
 export default function InstallButton({ appName, className = '', children = 'Instalar app', iconClassName = 'w-4 h-4', labelClassName = '', testId = 'install-app' }) {
   const { mode, promptInstall, dismissInstall } = useInstall();
-  const [guide, setGuide] = useState(false);
+  const [guide, setGuide] = useState(null);
   if (!mode && !guide) return null;
 
   const click = () => {
     if (mode === 'prompt') promptInstall();
-    else setGuide(true);
+    else setGuide(mode);
   };
 
   return (
@@ -26,8 +26,9 @@ export default function InstallButton({ appName, className = '', children = 'Ins
       {guide && (
         <InstallGuide
           appName={appName}
-          onClose={() => setGuide(false)}
-          onDismiss={() => { setGuide(false); dismissInstall(); }}
+          variant={guide}
+          onClose={() => setGuide(null)}
+          onDismiss={() => { setGuide(null); dismissInstall(); }}
         />
       )}
     </>

@@ -32,11 +32,28 @@ export function isDismissed(now = Date.now()) {
   return Number.isFinite(at) && at > 0 && now - at < DISMISS_DAYS * 24 * 60 * 60 * 1000;
 }
 
+export function isAndroid() {
+  if (typeof navigator === 'undefined') return false;
+  return /Android/i.test(navigator.userAgent || '');
+}
+
+// Navegadores de computador que instalam PWA pelo menu/barra de endereço (Chrome, Edge, Opera, Brave).
+export function isDesktopChromium() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return !isAndroid() && !isIOS() && /Chrome\/|Edg\//.test(ua) && !/Firefox\//.test(ua);
+}
+
 function compute() {
   const hidden = installed || isStandalone() || isDismissed();
-  const ios = isIOS();
-  const mode = hidden ? null : deferred ? 'prompt' : ios ? 'ios' : null;
-  return { mode }; // 'prompt' (1 toque) | 'ios' (guia) | null (não mostrar)
+  let mode = null;
+  if (!hidden) {
+    if (deferred) mode = 'prompt';          // instalação em 1 toque (prompt nativo)
+    else if (isIOS()) mode = 'ios';         // guia: Compartilhar → Adicionar à Tela de Início
+    else if (isAndroid()) mode = 'android'; // o Chrome nem sempre libera o prompt (já instalado, recusado antes, regras próprias): guia pelo menu ⋮
+    else if (isDesktopChromium()) mode = 'desktop';
+  }
+  return { mode }; // 'prompt' | 'ios' | 'android' | 'desktop' | null (não mostrar)
 }
 
 function emit() {
