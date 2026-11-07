@@ -6,7 +6,8 @@ import react from '@vitejs/plugin-react'
 // /admin-icon-*.png: exige "/admin" seguido de "/", "?" ou fim.
 function adminHtmlFallback() {
   const rewrite = (req, _res, next) => {
-    if (/^\/admin(\/|\?|$)/.test(req.url || '')) req.url = '/admin.html'
+    // /admin/sw.js é arquivo estático (public/admin/sw.js), não rota do painel.
+    if (/^\/admin(\/|\?|$)/.test(req.url || '') && !/^\/admin\/sw\.js(\?|$)/.test(req.url)) req.url = '/admin.html'
     next()
   }
   return {
